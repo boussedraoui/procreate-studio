@@ -16,508 +16,78 @@
             --accent2: #4ecdc4;
             --radius: 16px;
         }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            overflow: hidden;
-        }
-        #app {
-            width: 100vw;
-            height: 100vh;
-            max-width: 1400px;
-            max-height: 900px;
-            display: flex;
-            flex-direction: column;
-            background: var(--bg);
-            border-radius: 0;
-            overflow: hidden;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-        }
-
-        .topbar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            overflow-x: auto;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
-            flex-shrink: 0;
-        }
-        .topbar::-webkit-scrollbar {
-            height: 4px;
-        }
-        .topbar::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 2px;
-        }
-
-        .app-title {
-            font-weight: 700;
-            font-size: 20px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            flex-shrink: 0;
-        }
-        button {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 8px 14px;
-            border-radius: 24px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: background 0.2s;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        button:hover {
-            background: #38383d;
-        }
-        button.accent {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
-            font-weight: 600;
-        }
-        button.active {
-            background: var(--accent2);
-            border-color: var(--accent2);
-            color: #000;
-        }
-        button.premium-unlocked {
-            background: var(--accent2);
-            border-color: var(--accent2);
-            color: #000;
-        }
-        select {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 8px 12px;
-            border-radius: 24px;
-            font-size: 13px;
-            cursor: pointer;
-            outline: none;
-            flex-shrink: 0;
-        }
-
-        .workspace {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .panel {
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            overflow-y: auto;
-            z-index: 25;
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 260px;
-            transition: transform 0.3s;
-        }
-        .left-panel {
-            left: 0;
-            transform: translateX(-100%);
-            border-right: 1px solid var(--border);
-        }
-        .right-panel {
-            right: 0;
-            transform: translateX(100%);
-            border-left: 1px solid var(--border);
-        }
-        .panel.open {
-            transform: translateX(0);
-        }
-
-        .panel-section {
-            background: var(--surface2);
-            border-radius: var(--radius);
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .panel-title {
-            font-weight: 600;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: #b0b0b0;
-        }
-        .tool-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-        .tool-item {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 8px 4px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            font-size: 11px;
-            cursor: pointer;
-            color: #b0b0b0;
-            transition: 0.2s;
-        }
-        .tool-item.active {
-            background: var(--accent2);
-            border-color: var(--accent2);
-            color: #000;
-            transform: scale(1.02);
-        }
-        .tool-icon {
-            font-size: 22px;
-        }
-        input[type="color"] {
-            width: 36px;
-            height: 36px;
-            border: 2px solid var(--border);
-            border-radius: 50%;
-            background: transparent;
-            cursor: pointer;
-            padding: 2px;
-        }
-        input[type="range"] {
-            width: 100%;
-            accent-color: var(--accent);
-        }
-        .slider-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .slider-row label {
-            font-size: 12px;
-            color: #b0b0b0;
-            min-width: 45px;
-        }
-        .slider-row span {
-            font-size: 12px;
-            color: var(--text);
-            min-width: 28px;
-            text-align: center;
-        }
-
-        .canvas-container {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            background: #2c2c2e;
-        }
-        canvas#mainCanvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            background: white;
-            touch-action: none;
-            border: none;
-            outline: none;
-        }
-        canvas#previewCanvas {
-            position: absolute;
-            pointer-events: none;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            touch-action: none;
-        }
-        #threeContainer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: none;
-        }
-        .layer-list {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            max-height: 250px;
-            overflow-y: auto;
-        }
-        .layer-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #3a3a3c;
-            padding: 8px 10px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 13px;
-            color: #fff;
-            border: 1px solid transparent;
-        }
-        .layer-item.active-layer {
-            border-color: var(--accent);
-            background: #555;
-        }
-        .layer-item .visibility-toggle {
-            margin-left: 8px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .layer-actions {
-            display: flex;
-            gap: 4px;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-
-        .fullscreen-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            z-index: 200;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .fullscreen-overlay.active {
-            display: flex;
-        }
-        .fullscreen-canvas-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .controls-bar {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: none;
-            align-items: center;
-            gap: 10px;
-            background: rgba(30, 30, 30, 0.85);
-            backdrop-filter: blur(10px);
-            padding: 10px 16px;
-            border-radius: 30px;
-            z-index: 30;
-            max-width: calc(100vw - 30px);
-            overflow-x: auto;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
-        }
-        .controls-bar.visible {
-            display: flex;
-        }
-        .controls-bar label {
-            color: var(--text);
-            font-size: 12px;
-        }
-        #rotateSpeed {
-            width: 100px;
-            min-width: 80px;
-        }
-        #speedDisplay {
-            color: var(--text);
-            min-width: 32px;
-            text-align: center;
-        }
-
-        .assistant-dropdown {
-            position: fixed;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 16px;
-            display: none;
-            flex-direction: column;
-            gap: 12px;
-            z-index: 300;
-            width: 320px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-        }
-        .assistant-dropdown.open {
-            display: flex;
-        }
-        .assistant-dropdown .section-title {
-            font-weight: 600;
-            font-size: 13px;
-            color: var(--text);
-        }
-        .assistant-dropdown .row {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-        .assistant-dropdown input,
-        .assistant-dropdown select,
-        .assistant-dropdown button {
-            padding: 6px 10px;
-            font-size: 12px;
-        }
-        .assistant-dropdown input[type="text"] {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-        .assistant-dropdown select {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-        .assistant-dropdown input[type="color"] {
-            width: 30px;
-            height: 30px;
-        }
-        .position-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 4px;
-        }
-        .pos-btn {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--text);
-            border-radius: 8px;
-            padding: 6px;
-            font-size: 11px;
-            cursor: pointer;
-            text-align: center;
-        }
-        .pos-btn.active {
-            background: var(--accent2);
-            color: #000;
-        }
-        .shape-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 4px;
-        }
-        .shape-btn {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--text);
-            border-radius: 8px;
-            padding: 6px;
-            font-size: 11px;
-            cursor: pointer;
-            text-align: center;
-        }
-        .shape-btn.active {
-            background: var(--accent2);
-            color: #000;
-        }
-        .tip-display {
-            background: var(--surface);
-            border-radius: 8px;
-            padding: 8px;
-            font-size: 12px;
-            color: var(--text);
-            min-height: 40px;
-        }
-        #closeAssistantDropdown {
-            align-self: flex-end;
-            background: var(--accent);
-            border: none;
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-        #uploadInput {
-            display: none;
-        }
-
-        /* --- Premium Modal Styles --- */
-        .premium-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 9999;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(4px);
-        }
-        .premium-modal.active {
-            display: flex;
-        }
-        .premium-modal-content {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 30px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-        }
-        .premium-modal-content h2 {
-            color: var(--accent2);
-            margin-bottom: 10px;
-        }
-        .premium-modal-content p {
-            color: var(--text);
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-        .premium-modal-content button {
-            width: 100%;
-            margin: 6px 0;
-            justify-content: center;
-        }
-        .premium-modal-content .cancel-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-        }
-
-        /* --- FIX for 3D Controls Bar --- */
-        #controlsBar.visible {
-            display: flex !important;
-            z-index: 9999 !important;
-            position: absolute !important;
-            bottom: 20px !important;
-            left: 50% !important;
-            transform: translateX(-50%) !important;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Segoe UI', Roboto, sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; overflow: hidden; }
+        #app { width: 100vw; height: 100vh; max-width: 1400px; max-height: 900px; display: flex; flex-direction: column; background: var(--bg); border-radius: 0; overflow: hidden; box-shadow: 0 0 40px rgba(0, 0, 0, 0.8); }
+        .topbar { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; flex-shrink: 0; }
+        .topbar::-webkit-scrollbar { height: 4px; }
+        .topbar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        .app-title { font-weight: 700; font-size: 20px; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; flex-shrink: 0; }
+        button { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 24px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; white-space: nowrap; flex-shrink: 0; }
+        button:hover { background: #38383d; }
+        button.accent { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+        button.active { background: var(--accent2); border-color: var(--accent2); color: #000; }
+        button.premium-unlocked { background: var(--accent2); border-color: var(--accent2); color: #000; }
+        select { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 24px; font-size: 13px; cursor: pointer; outline: none; flex-shrink: 0; }
+        .workspace { flex: 1; display: flex; overflow: hidden; position: relative; }
+        .panel { background: var(--surface); border-right: 1px solid var(--border); padding: 12px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; z-index: 25; position: absolute; top: 0; bottom: 0; width: 260px; transition: transform 0.3s; }
+        .left-panel { left: 0; transform: translateX(-100%); border-right: 1px solid var(--border); }
+        .right-panel { right: 0; transform: translateX(100%); border-left: 1px solid var(--border); }
+        .panel.open { transform: translateX(0); }
+        .panel-section { background: var(--surface2); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .panel-title { font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: #b0b0b0; }
+        .tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .tool-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; cursor: pointer; color: #b0b0b0; transition: 0.2s; }
+        .tool-item.active { background: var(--accent2); border-color: var(--accent2); color: #000; transform: scale(1.02); }
+        .tool-icon { font-size: 22px; }
+        input[type="color"] { width: 36px; height: 36px; border: 2px solid var(--border); border-radius: 50%; background: transparent; cursor: pointer; padding: 2px; }
+        input[type="range"] { width: 100%; accent-color: var(--accent); }
+        .slider-row { display: flex; align-items: center; gap: 8px; }
+        .slider-row label { font-size: 12px; color: #b0b0b0; min-width: 45px; }
+        .slider-row span { font-size: 12px; color: var(--text); min-width: 28px; text-align: center; }
+        .canvas-container { flex: 1; position: relative; overflow: hidden; background: #2c2c2e; }
+        canvas#mainCanvas { display: block; width: 100%; height: 100%; background: white; touch-action: none; border: none; outline: none; }
+        canvas#previewCanvas { position: absolute; pointer-events: none; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; }
+        #threeContainer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; }
+        .layer-list { display: flex; flex-direction: column; gap: 4px; max-height: 250px; overflow-y: auto; }
+        .layer-item { display: flex; align-items: center; justify-content: space-between; background: #3a3a3c; padding: 8px 10px; border-radius: 10px; cursor: pointer; font-size: 13px; color: #fff; border: 1px solid transparent; }
+        .layer-item.active-layer { border-color: var(--accent); background: #555; }
+        .layer-item .visibility-toggle { margin-left: 8px; font-size: 16px; cursor: pointer; }
+        .layer-actions { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+        .fullscreen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .fullscreen-overlay.active { display: flex; }
+        .fullscreen-canvas-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .controls-bar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: none; align-items: center; gap: 10px; background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(10px); padding: 10px 16px; border-radius: 30px; z-index: 9999; max-width: calc(100vw - 30px); overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+        .controls-bar.visible { display: flex !important; }
+        .controls-bar label { color: var(--text); font-size: 12px; }
+        #rotateSpeed { width: 100px; min-width: 80px; }
+        #speedDisplay { color: var(--text); min-width: 32px; text-align: center; }
+        .assistant-dropdown { position: fixed; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; display: none; flex-direction: column; gap: 12px; z-index: 300; width: 320px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); }
+        .assistant-dropdown.open { display: flex; }
+        .assistant-dropdown .section-title { font-weight: 600; font-size: 13px; color: var(--text); }
+        .assistant-dropdown .row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .assistant-dropdown input, .assistant-dropdown select, .assistant-dropdown button { padding: 6px 10px; font-size: 12px; }
+        .assistant-dropdown input[type="text"] { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+        .assistant-dropdown select { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+        .assistant-dropdown input[type="color"] { width: 30px; height: 30px; }
+        .position-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+        .pos-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px; font-size: 11px; cursor: pointer; text-align: center; }
+        .pos-btn.active { background: var(--accent2); color: #000; }
+        .shape-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+        .shape-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px; font-size: 11px; cursor: pointer; text-align: center; }
+        .shape-btn.active { background: var(--accent2); color: #000; }
+        .tip-display { background: var(--surface); border-radius: 8px; padding: 8px; font-size: 12px; color: var(--text); min-height: 40px; }
+        #closeAssistantDropdown { align-self: flex-end; background: var(--accent); border: none; color: #fff; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 13px; }
+        #uploadInput { display: none; }
+        
+        /* Premium Modal */
+        .premium-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .premium-modal.active { display: flex; }
+        .premium-modal-content { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 30px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+        .premium-modal-content h2 { color: var(--accent2); margin-bottom: 10px; }
+        .premium-modal-content p { color: var(--text); margin-bottom: 20px; line-height: 1.5; }
+        .premium-modal-content button { width: 100%; margin: 6px 0; justify-content: center; }
+        .premium-modal-content .cancel-btn { background: transparent; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
@@ -597,7 +167,6 @@
     <!-- Assistant Dropdown -->
     <div id="assistantDropdown" class="assistant-dropdown">
         <button id="closeAssistantDropdown">✕</button>
-        <!-- Text Section -->
         <div class="assistant-section">
             <div class="section-title">✍️ Add Text</div>
             <input type="text" id="assistantTextInput" placeholder="Type your text..." />
@@ -633,7 +202,6 @@
             </div>
             <button id="placeTextBtn">📝 Place Text</button>
         </div>
-        <!-- Shape Section -->
         <div class="assistant-section">
             <div class="section-title">🔷 Add Shape</div>
             <div class="shape-grid" id="shapeGrid">
@@ -679,7 +247,6 @@
             </div>
             <button id="drawShapeBtn">✏️ Draw Shape</button>
         </div>
-        <!-- Tip Section -->
         <div class="assistant-section">
             <div class="section-title">💡 Tip</div>
             <div class="tip-display" id="tipDisplay">Tap 'Show Tip' for advice.</div>
@@ -753,72 +320,19 @@
         let redoStack = [];
         const MAX_UNDO = 40;
         let isDrawing = false;
-        let startX = 0,
-            startY = 0,
-            lastX = 0,
-            lastY = 0;
+        let startX = 0, startY = 0, lastX = 0, lastY = 0;
         let shapePreview = null;
 
         let is3D = false;
         let renderer3D, scene3D, camera3D, sphereMesh, texture3D, controls3D;
         let raycaster = new THREE.Raycaster();
-        let autoRotate = false,
-            wireframeMode = false,
-            rotateSpeedVal = 1;
+        let autoRotate = false, wireframeMode = false, rotateSpeedVal = 1;
         let isFullscreen = false;
         const fullscreenOverlay = document.getElementById('fullscreenOverlay');
         const fullscreenCanvas = document.getElementById('fullscreenCanvas');
         const fullscreenCtx = fullscreenCanvas.getContext('2d');
 
-        // ========== Assistant elements ==========
-        const assistantTextInput = document.getElementById('assistantTextInput');
-        const assistantFontSelect = document.getElementById('assistantFontSelect');
-        const assistantTextSize = document.getElementById('assistantTextSize');
-        const assistantTextSizeValue = document.getElementById('assistantTextSizeValue');
-        const assistantBoldBtn = document.getElementById('assistantBoldBtn');
-        const assistantItalicBtn = document.getElementById('assistantItalicBtn');
-        const assistantUnderlineBtn = document.getElementById('assistantUnderlineBtn');
-        const assistantTextColor = document.getElementById('assistantTextColor');
-        const placeTextBtn = document.getElementById('placeTextBtn');
-        let textBold = false,
-            textItalic = false,
-            textUnderline = false;
-        let textPosX = 50,
-            textPosY = 50;
-
-        const shapeGrid = document.getElementById('shapeGrid');
-        const assistantShapeW = document.getElementById('assistantShapeW');
-        const assistantShapeH = document.getElementById('assistantShapeH');
-        const assistantShapeWVal = document.getElementById('assistantShapeWVal');
-        const assistantShapeHVal = document.getElementById('assistantShapeHVal');
-        const assistantShapeColor = document.getElementById('assistantShapeColor');
-        const drawShapeBtn = document.getElementById('drawShapeBtn');
-        let selectedShape = 'square';
-        let shapePosX = 50,
-            shapePosY = 50;
-
-        const tipDisplay = document.getElementById('tipDisplay');
-        const showTipBtn = document.getElementById('showTipBtn');
-        const drawingTips = [
-            "Use a new layer for each major element.",
-            "Try sketching light outlines before applying heavy strokes.",
-            "Low opacity brush on a separate layer creates soft shadows.",
-            "Use the eyedropper to pick existing colors for seamless blending.",
-            "Flip your canvas (3D mode) to spot symmetry mistakes.",
-            "Save drafts often – they are stored in your browser.",
-            "Shape tools help you draw precise lines and circles.",
-            "Experiment with brush opacity for smooth gradients.",
-            "Keep your layers organized.",
-            "Use Ctrl+Z (or Back button) to undo step by step.",
-            "Try adding text and then painting over it.",
-            "A limited color palette makes your artwork look cohesive.",
-            "Use the Fill tool to quickly change background colors.",
-            "You can merge layers to combine drawings permanently.",
-            "Duplicate a layer before making major changes as a backup."
-        ];
-        let usedTips = [];
-
-        // ========== Premium features lock ==========
+        // ========== Premium features lock (REPAIRED & SIMPLIFIED) ==========
         const premiumModal = document.getElementById('premiumModal');
         const premiumModalText = document.getElementById('premiumModalText');
         const unlockPremiumBtn = document.getElementById('unlockPremiumBtn');
@@ -827,8 +341,8 @@
         const storeProductId = '9PMJWQWFVSH7';
 
         let isPremium = false;
-        let pendingLockedAction = null;
 
+        // Check premium status
         function checkPremium() {
             const stored = localStorage.getItem('procreate_premium');
             if (stored === 'true') {
@@ -843,36 +357,20 @@
             isPremium = status;
             localStorage.setItem('procreate_premium', status ? 'true' : 'false');
             updatePremiumUI();
+            premiumModal.classList.remove('active');
         }
 
         function updatePremiumUI() {
             if (isPremium) {
                 unlockPremiumBtn.textContent = '✅ Premium';
                 unlockPremiumBtn.className = 'premium-unlocked';
-                premiumModal.classList.remove('active');
             } else {
                 unlockPremiumBtn.textContent = '🔓 Unlock Premium';
                 unlockPremiumBtn.className = '';
             }
         }
 
-        function requirePremium(actionCallback) {
-            if (isPremium) {
-                if (typeof actionCallback === 'function') actionCallback();
-                return;
-            }
-
-            if (window.Windows && Windows.Services.Store) {
-                pendingLockedAction = actionCallback;
-                premiumModalText.textContent = "This feature is available only with a Premium subscription. Get full access to Assistant, 3D, Recording, and more for just $5.99 / month.";
-                premiumModal.classList.add('active');
-            } else {
-                // NO ALERT. Show the modal with the lock message.
-                premiumModalText.textContent = "⚠️ This feature is locked. Please purchase the app from the Microsoft Store to unlock Premium.";
-                premiumModal.classList.add('active');
-            }
-        }
-
+        // Purchase function
         async function purchasePremium() {
             try {
                 if (window.Windows && Windows.Services.Store) {
@@ -880,136 +378,120 @@
                     const result = await context.requestPurchaseAsync(storeProductId);
                     if (result.status === Windows.Services.Store.StorePurchaseStatus.succeeded) {
                         setPremium(true);
-                        if (pendingLockedAction) {
-                            pendingLockedAction();
-                            pendingLockedAction = null;
-                        }
-                        premiumModal.classList.remove('active');
                     } else {
                         premiumModalText.textContent = "Purchase was not completed. Please try again.";
                         premiumModal.classList.add('active');
                     }
                 } else {
-                    // NO ALERT. Block without showing site name.
+                    // In browser: show modal with lock message, NO ALERT
                     premiumModalText.textContent = "⚠️ Premium features are only available in the official Microsoft Store app. Please download and purchase the app from the Microsoft Store to unlock all features.";
                     premiumModal.classList.add('active');
-                    return;
                 }
             } catch (error) {
                 console.error('Purchase error:', error);
-                premiumModalText.textContent = "An error occurred during purchase: " + error.message;
+                premiumModalText.textContent = "An error occurred during purchase.";
                 premiumModal.classList.add('active');
             }
         }
 
+        // Event listeners
         unlockPremiumBtn.addEventListener('click', () => {
             if (isPremium) {
                 premiumModalText.textContent = "You already have Premium!";
                 premiumModal.classList.add('active');
                 return;
             }
-            premiumModalText.textContent = "This feature is available only with a Premium subscription. Get full access to Assistant, 3D, Recording, and more for just $5.99 / month.";
-            premiumModal.classList.add('active');
+            // Check if we are in a real Windows Store context
+            if (window.Windows && Windows.Services.Store) {
+                premiumModalText.textContent = "This feature is available only with a Premium subscription. Get full access to Assistant, 3D, Recording, and more for just $5.99 / month.";
+                premiumModal.classList.add('active');
+            } else {
+                // In browser: show modal with lock message, NO ALERT
+                premiumModalText.textContent = "⚠️ This feature is locked. Please purchase the app from the Microsoft Store to unlock Premium.";
+                premiumModal.classList.add('active');
+            }
         });
 
         premiumPurchaseBtn.addEventListener('click', purchasePremium);
 
         premiumCancelBtn.addEventListener('click', () => {
             premiumModal.classList.remove('active');
-            pendingLockedAction = null;
         });
 
-        assistantBtn.addEventListener('click', (e) => {
-            if (!isPremium) {
-                e.stopPropagation();
-                requirePremium(() => {
-                    assistantDropdown.classList.add('open');
-                });
+        // Apply guard for premium features (intercept clicks if not premium)
+        function requirePremium(actionCallback) {
+            if (isPremium) {
+                actionCallback();
                 return;
             }
-        });
-
-        toggle3DBtn.addEventListener('click', (e) => {
-            if (!isPremium) {
-                e.stopPropagation();
-                requirePremium(() => {
-                    if (is3D) disable3D();
-                    else enable3D();
-                });
+            
+            // If in browser, don't let them pass
+            if (!(window.Windows && Windows.Services.Store)) {
+                premiumModalText.textContent = "⚠️ This feature is locked. Please purchase the app from the Microsoft Store to unlock Premium.";
+                premiumModal.classList.add('active');
                 return;
             }
-        });
-
-        document.getElementById('recordBtn').addEventListener('click', (e) => {
-            if (!isPremium) {
-                e.stopPropagation();
-                requirePremium(() => {
-                    recordBtn.click();
-                });
-                return;
-            }
-        });
-
-        const premiumExtraFeatures = [
-            'saveDraftBtn', 'loadDraftBtn', 'uploadBtn', 'downloadBtn'
-        ];
-        premiumExtraFeatures.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.addEventListener('click', (e) => {
-                    if (!isPremium) {
-                        e.stopPropagation();
-                        requirePremium(() => {
-                            el.click();
-                        });
-                    }
-                });
-            }
-        });
-
-        function guardPremium(elementId, actionKey) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            el.addEventListener('click', function(e) {
-                if (!isPremium) {
-                    e.stopImmediatePropagation();
-                    requirePremium(actionKey);
-                }
-            }, true);
+            
+            // If in Store context, show purchase modal
+            premiumModalText.textContent = "This feature is available only with a Premium subscription. Get full access to Assistant, 3D, Recording, and more for just $5.99 / month.";
+            premiumModal.classList.add('active');
+            
+            // Since we can't easily pause execution, we'll store the action
+            // but we need a way to trigger it after purchase. 
+            // For simplicity, we'll use a global callback variable.
+            window._pendingAction = actionCallback;
         }
 
-        const premiumActions = {
-            assistant: () => { assistantDropdown.classList.add('open'); },
-            toggle3D: () => { if (is3D) disable3D(); else enable3D(); },
-            record: () => { recordBtn.click(); },
-            saveDraft: () => { document.getElementById('saveDraftBtn').click(); },
-            loadDraft: () => { document.getElementById('loadDraftBtn').click(); },
-            upload: () => { document.getElementById('uploadBtn').click(); },
-            download: () => { document.getElementById('downloadBtn').click(); }
-        };
+        // Override premium actions using capturing phase to prevent default clicks
+        const premiumFeatures = [
+            { id: 'assistantBtn', action: () => { assistantDropdown.classList.add('open'); } },
+            { id: 'toggle3D', action: () => { if (is3D) disable3D(); else enable3D(); } },
+            { id: 'recordBtn', action: () => { document.getElementById('recordBtn').click(); } },
+            { id: 'saveDraftBtn', action: () => { document.getElementById('saveDraftBtn').click(); } },
+            { id: 'loadDraftBtn', action: () => { document.getElementById('loadDraftBtn').click(); } },
+            { id: 'uploadBtn', action: () => { document.getElementById('uploadBtn').click(); } },
+            { id: 'downloadBtn', action: () => { document.getElementById('downloadBtn').click(); } }
+        ];
 
-        function guardPremium(elementId, actionKey) {
-            const el = document.getElementById(elementId);
+        premiumFeatures.forEach(feature => {
+            const el = document.getElementById(feature.id);
             if (!el) return;
             el.addEventListener('click', function(e) {
                 if (!isPremium) {
                     e.stopImmediatePropagation();
                     requirePremium(() => {
-                        premiumActions[actionKey]();
+                        feature.action();
                     });
                 }
             }, true);
-        }
+        });
 
-        guardPremium('assistantBtn', 'assistant');
-        guardPremium('toggle3D', 'toggle3D');
-        guardPremium('recordBtn', 'record');
-        guardPremium('saveDraftBtn', 'saveDraft');
-        guardPremium('loadDraftBtn', 'loadDraft');
-        guardPremium('uploadBtn', 'upload');
-        guardPremium('downloadBtn', 'download');
+        // Modify premium purchase to run pending action
+        const originalPurchase = premiumPurchaseBtn.click;
+        premiumPurchaseBtn.addEventListener('click', async () => {
+            if (isPremium && window._pendingAction) {
+                window._pendingAction();
+                window._pendingAction = null;
+            }
+        });
+        // Actually, we need to handle it in the purchasePremium success block.
+        // Let's check the purchasePremium function. It calls setPremium(true).
+        // Let's modify setPremium to check for a pending action.
+        const originalSetPremium = setPremium;
+        setPremium = function(status) {
+            isPremium = status;
+            localStorage.setItem('procreate_premium', status ? 'true' : 'false');
+            updatePremiumUI();
+            premiumModal.classList.remove('active');
+            if (status && window._pendingAction) {
+                window._pendingAction();
+                window._pendingAction = null;
+            }
+        };
 
+        // Initialize premium status
         checkPremium();
+        // End of premium section =============================================
 
         // ========== Position helpers ==========
         function getPosition(px, py) {
@@ -1018,24 +500,16 @@
 
         function getPos(e, canvas = mainCanvas) {
             const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width,
-                scaleY = canvas.height / rect.height;
+            const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
             let clientX, clientY;
-            if (e.touches) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
+            if (e.touches) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; } 
+            else { clientX = e.clientX; clientY = e.clientY; }
             return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
         }
 
         function compositeLayers() {
             ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-            layers.forEach(l => {
-                if (l.visible) ctx.drawImage(l.canvas, 0, 0);
-            });
+            layers.forEach(l => { if (l.visible) ctx.drawImage(l.canvas, 0, 0); });
             if (is3D && texture3D) texture3D.needsUpdate = true;
             if (isFullscreen) compositeLayersToFullscreen();
             clearTimeout(window._autoSaveTimeout);
@@ -1057,22 +531,9 @@
             return { x: fx * (mainCanvas.width / fullscreenCanvas.width), y: fy * (mainCanvas.height / fullscreenCanvas.height) };
         }
 
-        function fsStart(e) {
-            e.preventDefault();
-            const { x, y } = mapFullscreenCoords(e.touches ? e.touches[0].clientX : e.clientX, e.touches ? e.touches[0].clientY : e.clientY);
-            startDrawAt(x, y);
-        }
-
-        function fsMove(e) {
-            if (!isDrawing) return;
-            e.preventDefault();
-            const { x, y } = mapFullscreenCoords(e.touches ? e.touches[0].clientX : e.clientX, e.touches ? e.touches[0].clientY : e.clientY);
-            drawAt(x, y);
-        }
-
-        function fsEnd() {
-            endDrawAt();
-        }
+        function fsStart(e) { e.preventDefault(); const { x, y } = mapFullscreenCoords(e.touches ? e.touches[0].clientX : e.clientX, e.touches ? e.touches[0].clientY : e.clientY); startDrawAt(x, y); }
+        function fsMove(e) { if (!isDrawing) return; e.preventDefault(); const { x, y } = mapFullscreenCoords(e.touches ? e.touches[0].clientX : e.clientX, e.touches ? e.touches[0].clientY : e.clientY); drawAt(x, y); }
+        function fsEnd() { endDrawAt(); }
 
         function enterFullscreen() {
             isFullscreen = true;
@@ -1107,23 +568,18 @@
 
         function createLayerCanvas(w, h, fillWhite = false) {
             const c = document.createElement('canvas');
-            c.width = w;
-            c.height = h;
+            c.width = w; c.height = h;
             const cctx = c.getContext('2d');
             if (fillWhite) { cctx.fillStyle = '#ffffff'; cctx.fillRect(0, 0, w, h); }
             return c;
         }
 
         function newCanvas() {
-            const w = mainCanvas.width,
-                h = mainCanvas.height;
+            const w = mainCanvas.width, h = mainCanvas.height;
             layers = [{ canvas: createLayerCanvas(w, h, true), name: 'Layer 1', visible: true }];
             activeLayerIndex = 0;
-            undoStack = [];
-            redoStack = [];
-            saveSnapshot();
-            renderLayerList();
-            compositeLayers();
+            undoStack = []; redoStack = [];
+            saveSnapshot(); renderLayerList(); compositeLayers();
         }
 
         function saveSnapshot() {
@@ -1145,10 +601,7 @@
                 img.onload = () => {
                     layer.canvas.getContext('2d').drawImage(img, 0, 0);
                     loaded++;
-                    if (loaded === layers.length) {
-                        compositeLayers();
-                        renderLayerList();
-                    }
+                    if (loaded === layers.length) { compositeLayers(); renderLayerList(); }
                 };
                 img.src = snapshot[idx];
             });
@@ -1180,26 +633,15 @@
                 const visBtn = document.createElement('span');
                 visBtn.className = 'visibility-toggle';
                 visBtn.textContent = layer.visible ? '👁' : '❌';
-                visBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    layer.visible = !layer.visible;
-                    compositeLayers();
-                    renderLayerList();
-                });
+                visBtn.addEventListener('click', (e) => { e.stopPropagation(); layer.visible = !layer.visible; compositeLayers(); renderLayerList(); });
                 div.appendChild(nameSpan);
                 div.appendChild(visBtn);
-                div.addEventListener('click', () => {
-                    activeLayerIndex = i;
-                    compositeLayers();
-                    renderLayerList();
-                });
+                div.addEventListener('click', () => { activeLayerIndex = i; compositeLayers(); renderLayerList(); });
                 layerListDiv.appendChild(div);
             });
         }
 
-        function getActiveLayerCanvas() {
-            return layers[activeLayerIndex]?.canvas;
-        }
+        function getActiveLayerCanvas() { return layers[activeLayerIndex]?.canvas; }
 
         function setActiveTool(tool) {
             currentTool = tool;
@@ -1211,9 +653,7 @@
         }
         toolItems.forEach(item => item.addEventListener('click', () => setActiveTool(item.dataset.tool)));
 
-        function clearPreview() {
-            pctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-        }
+        function clearPreview() { pctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height); }
 
         function drawShapePreview() {
             if (!shapePreview || !isDrawing) return;
@@ -1223,29 +663,15 @@
             pctx.lineWidth = brushSize;
             pctx.globalAlpha = brushOpacity;
             pctx.setLineDash([6, 4]);
-            if (type === 'line') {
-                pctx.beginPath();
-                pctx.moveTo(x0, y0);
-                pctx.lineTo(x1, y1);
-                pctx.stroke();
-            } else if (type === 'rect') pctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
-            else if (type === 'circle') {
-                const rx = Math.abs(x1 - x0) / 2,
-                    ry = Math.abs(y1 - y0) / 2;
-                pctx.beginPath();
-                pctx.ellipse((x0 + x1) / 2, (y0 + y1) / 2, rx, ry, 0, 0, Math.PI * 2);
-                pctx.stroke();
-            }
-            pctx.setLineDash([]);
-            pctx.globalAlpha = 1;
+            if (type === 'line') { pctx.beginPath(); pctx.moveTo(x0, y0); pctx.lineTo(x1, y1); pctx.stroke(); } 
+            else if (type === 'rect') pctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+            else if (type === 'circle') { const rx = Math.abs(x1 - x0) / 2, ry = Math.abs(y1 - y0) / 2; pctx.beginPath(); pctx.ellipse((x0 + x1) / 2, (y0 + y1) / 2, rx, ry, 0, 0, Math.PI * 2); pctx.stroke(); }
+            pctx.setLineDash([]); pctx.globalAlpha = 1;
         }
 
         function startDrawAt(x, y) {
             isDrawing = true;
-            startX = x;
-            startY = y;
-            lastX = x;
-            lastY = y;
+            startX = x; startY = y; lastX = x; lastY = y;
             if (currentTool === 'brush' || currentTool === 'eraser') {
                 const lctx = getActiveLayerCanvas().getContext('2d');
                 lctx.beginPath();
@@ -1254,13 +680,9 @@
                 shapePreview = { type: currentTool, x0: startX, y0: startY, x1: startX, y1: startY };
             } else if (currentTool === 'fill') {
                 floodFill(Math.floor(startX), Math.floor(startY));
-                isDrawing = false;
-                saveSnapshot();
-                compositeLayers();
+                isDrawing = false; saveSnapshot(); compositeLayers();
             } else if (currentTool === 'eyedropper') {
-                compositeLayers();
-                pickColor(Math.floor(startX), Math.floor(startY));
-                isDrawing = false;
+                compositeLayers(); pickColor(Math.floor(startX), Math.floor(startY)); isDrawing = false;
             }
         }
 
@@ -1268,23 +690,14 @@
             if (!isDrawing) return;
             if (currentTool === 'brush' || currentTool === 'eraser') {
                 const lctx = getActiveLayerCanvas().getContext('2d');
-                lctx.lineWidth = brushSize;
-                lctx.lineCap = 'round';
-                lctx.lineJoin = 'round';
+                lctx.lineWidth = brushSize; lctx.lineCap = 'round'; lctx.lineJoin = 'round';
                 lctx.globalAlpha = brushOpacity;
                 lctx.globalCompositeOperation = (currentTool === 'eraser') ? 'destination-out' : 'source-over';
                 if (currentTool !== 'eraser') lctx.strokeStyle = currentColor;
-                lctx.beginPath();
-                lctx.moveTo(lastX, lastY);
-                lctx.lineTo(x, y);
-                lctx.stroke();
-                lastX = x;
-                lastY = y;
-                compositeLayers();
+                lctx.beginPath(); lctx.moveTo(lastX, lastY); lctx.lineTo(x, y); lctx.stroke();
+                lastX = x; lastY = y; compositeLayers();
             } else if (['line', 'rect', 'circle'].includes(currentTool)) {
-                shapePreview.x1 = x;
-                shapePreview.y1 = y;
-                drawShapePreview();
+                shapePreview.x1 = x; shapePreview.y1 = y; drawShapePreview();
             }
         }
 
@@ -1300,47 +713,19 @@
             } else if (shapePreview) {
                 clearPreview();
                 const lctx = getActiveLayerCanvas().getContext('2d');
-                lctx.globalAlpha = brushOpacity;
-                lctx.strokeStyle = currentColor;
-                lctx.lineWidth = brushSize;
+                lctx.globalAlpha = brushOpacity; lctx.strokeStyle = currentColor; lctx.lineWidth = brushSize;
                 const { type, x0, y0, x1, y1 } = shapePreview;
-                if (type === 'line') {
-                    lctx.beginPath();
-                    lctx.moveTo(x0, y0);
-                    lctx.lineTo(x1, y1);
-                    lctx.stroke();
-                } else if (type === 'rect') lctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
-                else if (type === 'circle') {
-                    const rx = Math.abs(x1 - x0) / 2,
-                        ry = Math.abs(y1 - y0) / 2;
-                    lctx.beginPath();
-                    lctx.ellipse((x0 + x1) / 2, (y0 + y1) / 2, rx, ry, 0, 0, Math.PI * 2);
-                    lctx.stroke();
-                }
-                lctx.globalAlpha = 1;
-                shapePreview = null;
-                compositeLayers();
+                if (type === 'line') { lctx.beginPath(); lctx.moveTo(x0, y0); lctx.lineTo(x1, y1); lctx.stroke(); } 
+                else if (type === 'rect') lctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+                else if (type === 'circle') { const rx = Math.abs(x1 - x0) / 2, ry = Math.abs(y1 - y0) / 2; lctx.beginPath(); lctx.ellipse((x0 + x1) / 2, (y0 + y1) / 2, rx, ry, 0, 0, Math.PI * 2); lctx.stroke(); }
+                lctx.globalAlpha = 1; shapePreview = null; compositeLayers();
             }
             saveSnapshot();
         }
 
-        function startDraw(e) {
-            e.preventDefault();
-            const pos = getPos(e);
-            startDrawAt(pos.x, pos.y);
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-            e.preventDefault();
-            const pos = getPos(e);
-            drawAt(pos.x, pos.y);
-        }
-
-        function endDraw(e) {
-            if (!isDrawing) return;
-            endDrawAt();
-        }
+        function startDraw(e) { e.preventDefault(); const pos = getPos(e); startDrawAt(pos.x, pos.y); }
+        function draw(e) { if (!isDrawing) return; e.preventDefault(); const pos = getPos(e); drawAt(pos.x, pos.y); }
+        function endDraw(e) { if (!isDrawing) return; endDrawAt(); }
 
         mainCanvas.addEventListener('mousedown', startDraw);
         mainCanvas.addEventListener('mousemove', draw);
@@ -1356,8 +741,7 @@
             y = Math.min(Math.max(0, y), mainCanvas.height - 1);
             const pixel = ctx.getImageData(x, y, 1, 1).data;
             const hex = '#' + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1);
-            colorPicker.value = hex;
-            currentColor = hex;
+            colorPicker.value = hex; currentColor = hex;
         }
 
         function floodFill(sx, sy) {
@@ -1365,22 +749,12 @@
             if (!layerCanvas) return;
             const lctx = layerCanvas.getContext('2d');
             const imageData = lctx.getImageData(0, 0, layerCanvas.width, layerCanvas.height);
-            const data = imageData.data,
-                w = layerCanvas.width,
-                h = layerCanvas.height;
+            const data = imageData.data, w = layerCanvas.width, h = layerCanvas.height;
             const startIdx = (sy * w + sx) * 4;
-            const sr = data[startIdx],
-                sg = data[startIdx + 1],
-                sb = data[startIdx + 2],
-                sa = data[startIdx + 3];
-            const fillR = parseInt(currentColor.slice(1, 3), 16),
-                fillG = parseInt(currentColor.slice(3, 5), 16),
-                fillB = parseInt(currentColor.slice(5, 7), 16),
-                fillA = Math.round(brushOpacity * 255);
+            const sr = data[startIdx], sg = data[startIdx + 1], sb = data[startIdx + 2], sa = data[startIdx + 3];
+            const fillR = parseInt(currentColor.slice(1, 3), 16), fillG = parseInt(currentColor.slice(3, 5), 16), fillB = parseInt(currentColor.slice(5, 7), 16), fillA = Math.round(brushOpacity * 255);
             if (sr === fillR && sg === fillG && sb === fillB && sa === fillA) return;
-            const stack = [
-                [sx, sy]
-            ];
+            const stack = [[sx, sy]];
             const visited = new Uint8Array(w * h);
             while (stack.length) {
                 const [x, y] = stack.pop();
@@ -1390,10 +764,7 @@
                 const p = (y * w + x) * 4;
                 if (data[p] !== sr || data[p + 1] !== sg || data[p + 2] !== sb || data[p + 3] !== sa) continue;
                 visited[pixelIdx] = 1;
-                data[p] = fillR;
-                data[p + 1] = fillG;
-                data[p + 2] = fillB;
-                data[p + 3] = fillA;
+                data[p] = fillR; data[p + 1] = fillG; data[p + 2] = fillB; data[p + 3] = fillA;
                 stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
             }
             lctx.putImageData(imageData, 0, 0);
@@ -1409,11 +780,8 @@
             camera3D = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
             camera3D.position.set(0, 0, 5);
             controls3D = new OrbitControls(camera3D, renderer3D.domElement);
-            controls3D.enableDamping = true;
-            controls3D.dampingFactor = 0.05;
-            controls3D.rotateSpeed = 0.8;
-            controls3D.autoRotate = autoRotate;
-            controls3D.autoRotateSpeed = rotateSpeedVal;
+            controls3D.enableDamping = true; controls3D.dampingFactor = 0.05;
+            controls3D.rotateSpeed = 0.8; controls3D.autoRotate = autoRotate; controls3D.autoRotateSpeed = rotateSpeedVal;
             const geom = new THREE.SphereGeometry(2, 64, 64);
             texture3D = new THREE.CanvasTexture(mainCanvas);
             sphereMesh = new THREE.Mesh(geom, new THREE.MeshStandardMaterial({ map: texture3D, wireframe: wireframeMode }));
@@ -1446,29 +814,16 @@
             el.removeEventListener('touchcancel', endDraw3D);
         }
 
-        function animate3D() {
-            if (!is3D) return;
-            requestAnimationFrame(animate3D);
-            controls3D.update();
-            renderer3D.render(scene3D, camera3D);
-        }
-
-        function update3DTexture() {
-            if (texture3D) texture3D.needsUpdate = true;
-        }
+        function animate3D() { if (!is3D) return; requestAnimationFrame(animate3D); controls3D.update(); renderer3D.render(scene3D, camera3D); }
+        function update3DTexture() { if (texture3D) texture3D.needsUpdate = true; }
 
         function startDraw3D(e) {
             if (!is3D || (currentTool !== 'brush' && currentTool !== 'eraser')) return;
             e.preventDefault();
             const rect = renderer3D.domElement.getBoundingClientRect();
             let clientX, clientY;
-            if (e.touches) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
+            if (e.touches) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; } 
+            else { clientX = e.clientX; clientY = e.clientY; }
             const x = ((clientX - rect.left) / rect.width) * 2 - 1;
             const y = -((clientY - rect.top) / rect.height) * 2 + 1;
             const mouse = new THREE.Vector2(x, y);
@@ -1485,13 +840,8 @@
             e.preventDefault();
             const rect = renderer3D.domElement.getBoundingClientRect();
             let clientX, clientY;
-            if (e.touches) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
+            if (e.touches) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; } 
+            else { clientX = e.clientX; clientY = e.clientY; }
             const x = ((clientX - rect.left) / rect.width) * 2 - 1;
             const y = -((clientY - rect.top) / rect.height) * 2 + 1;
             const mouse = new THREE.Vector2(x, y);
@@ -1503,12 +853,7 @@
             }
         }
 
-        function endDraw3D(e) {
-            if (!isDrawing) return;
-            isDrawing = false;
-            compositeLayers();
-            saveSnapshot();
-        }
+        function endDraw3D(e) { if (!isDrawing) return; isDrawing = false; compositeLayers(); saveSnapshot(); }
 
         function enable3D() {
             is3D = true;
@@ -1518,43 +863,29 @@
             previewCanvas.style.display = 'none';
             threeContainer.style.display = 'block';
             controlsBar.classList.add('visible');
-            if (!renderer3D) {
-                init3D();
-            } else {
+            if (!renderer3D) { init3D(); } 
+            else {
                 renderer3D.setSize(container.clientWidth, container.clientHeight);
                 camera3D.aspect = container.clientWidth / container.clientHeight;
                 camera3D.updateProjectionMatrix();
                 texture3D.needsUpdate = true;
                 remove3DListeners();
                 const el = renderer3D.domElement;
-                el.addEventListener('mousedown', startDraw3D);
-                el.addEventListener('mousemove', draw3D);
-                el.addEventListener('mouseup', endDraw3D);
-                el.addEventListener('mouseleave', endDraw3D);
-                el.addEventListener('touchstart', startDraw3D, { passive: false });
-                el.addEventListener('touchmove', draw3D, { passive: false });
-                el.addEventListener('touchend', endDraw3D);
-                el.addEventListener('touchcancel', endDraw3D);
+                el.addEventListener('mousedown', startDraw3D); el.addEventListener('mousemove', draw3D); el.addEventListener('mouseup', endDraw3D); el.addEventListener('mouseleave', endDraw3D); el.addEventListener('touchstart', startDraw3D, { passive: false }); el.addEventListener('touchmove', draw3D, { passive: false }); el.addEventListener('touchend', endDraw3D); el.addEventListener('touchcancel', endDraw3D);
             }
-            toggle3DBtn.classList.add('active');
-            toggle3DBtn.innerHTML = '<span>🌐</span> 2D';
+            toggle3DBtn.classList.add('active'); toggle3DBtn.innerHTML = '<span>🌐</span> 2D';
             compositeLayers();
         }
 
         function disable3D() {
             is3D = false;
-            mainCanvas.style.display = 'block';
-            previewCanvas.style.display = 'block';
+            mainCanvas.style.display = 'block'; previewCanvas.style.display = 'block';
             threeContainer.style.display = 'none';
             controlsBar.classList.remove('visible');
             remove3DListeners();
-            toggle3DBtn.classList.remove('active');
-            toggle3DBtn.innerHTML = '<span>🌐</span> 3D / 360°';
+            toggle3DBtn.classList.remove('active'); toggle3DBtn.innerHTML = '<span>🌐</span> 3D / 360°';
         }
-        toggle3DBtn.addEventListener('click', () => {
-            if (is3D) disable3D();
-            else enable3D();
-        });
+        toggle3DBtn.addEventListener('click', () => { if (is3D) disable3D(); else enable3D(); });
 
         document.getElementById('autoRotateBtn').addEventListener('click', () => {
             autoRotate = !autoRotate;
@@ -1576,34 +907,18 @@
         });
 
         function resizeCanvas() {
-            const w = container.clientWidth;
-            const h = container.clientHeight;
+            const w = container.clientWidth; const h = container.clientHeight;
             if (w === 0 || h === 0) return;
-
-            const layerData = layers.map(l => {
-                const c = l.canvas;
-                return c.getContext('2d').getImageData(0, 0, c.width, c.height);
-            });
-
-            mainCanvas.width = w;
-            mainCanvas.height = h;
-            previewCanvas.width = w;
-            previewCanvas.height = h;
-
+            const layerData = layers.map(l => { const c = l.canvas; return c.getContext('2d').getImageData(0, 0, c.width, c.height); });
+            mainCanvas.width = w; mainCanvas.height = h;
+            previewCanvas.width = w; previewCanvas.height = h;
             layers.forEach((l, i) => {
-                l.canvas.width = w;
-                l.canvas.height = h;
+                l.canvas.width = w; l.canvas.height = h;
                 if (layerData[i] && layerData[i].width > 0 && layerData[i].height > 0) {
                     l.canvas.getContext('2d').putImageData(layerData[i], 0, 0);
                 }
             });
-
-            if (layers.length === 0) {
-                newCanvas();
-            } else {
-                compositeLayers();
-            }
-
+            if (layers.length === 0) { newCanvas(); } else { compositeLayers(); }
             if (is3D && renderer3D) {
                 renderer3D.setSize(w, h);
                 camera3D.aspect = w / h;
@@ -1623,8 +938,7 @@
                 reader.onload = ev => {
                     const img = new Image();
                     img.onload = () => {
-                        const w = mainCanvas.width,
-                            h = mainCanvas.height;
+                        const w = mainCanvas.width, h = mainCanvas.height;
                         const lc = createLayerCanvas(w, h, false);
                         const lctx = lc.getContext('2d');
                         const scale = Math.min(w / img.width, h / img.height, 1);
@@ -1632,8 +946,7 @@
                         saveSnapshot();
                         layers.push({ canvas: lc, name: 'Imported', visible: true });
                         activeLayerIndex = layers.length - 1;
-                        renderLayerList();
-                        compositeLayers();
+                        renderLayerList(); compositeLayers();
                         this.value = '';
                     };
                     img.src = ev.target.result;
@@ -1643,10 +956,7 @@
                 if (typeof pdfjsLib === 'undefined') {
                     const s = document.createElement('script');
                     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
-                    s.onload = () => {
-                        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-                        loadPDF(file);
-                    };
+                    s.onload = () => { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js'; loadPDF(file); };
                     document.head.appendChild(s);
                 } else loadPDF(file);
             } else alert('Unsupported file');
@@ -1658,13 +968,11 @@
                 pdfjsLib.getDocument(new Uint8Array(this.result)).promise.then(pdf => pdf.getPage(1)).then(page => {
                     const vp = page.getViewport({ scale: 1 });
                     const c = document.createElement('canvas');
-                    c.width = vp.width;
-                    c.height = vp.height;
+                    c.width = vp.width; c.height = vp.height;
                     page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise.then(() => {
                         const img = new Image();
                         img.onload = () => {
-                            const w = mainCanvas.width,
-                                h = mainCanvas.height;
+                            const w = mainCanvas.width, h = mainCanvas.height;
                             const lc = createLayerCanvas(w, h, false);
                             const lctx = lc.getContext('2d');
                             const scale = Math.min(w / img.width, h / img.height, 1);
@@ -1672,8 +980,7 @@
                             saveSnapshot();
                             layers.push({ canvas: lc, name: 'PDF', visible: true });
                             activeLayerIndex = layers.length - 1;
-                            renderLayerList();
-                            compositeLayers();
+                            renderLayerList(); compositeLayers();
                         };
                         img.src = c.toDataURL();
                     });
@@ -1701,22 +1008,13 @@
                 btn.classList.add('active');
                 const pos = btn.dataset.pos;
                 const map = { tl: [10, 10], tc: [50, 10], tr: [90, 10], ml: [10, 50], mc: [50, 50], mr: [90, 50], bl: [10, 90], bc: [50, 90], br: [90, 90] };
-                textPosX = map[pos][0];
-                textPosY = map[pos][1];
-                document.getElementById('textPosX').value = textPosX;
-                document.getElementById('textPosY').value = textPosY;
-                document.getElementById('textPosXVal').textContent = textPosX + '%';
-                document.getElementById('textPosYVal').textContent = textPosY + '%';
+                textPosX = map[pos][0]; textPosY = map[pos][1];
+                document.getElementById('textPosX').value = textPosX; document.getElementById('textPosY').value = textPosY;
+                document.getElementById('textPosXVal').textContent = textPosX + '%'; document.getElementById('textPosYVal').textContent = textPosY + '%';
             });
         });
-        document.getElementById('textPosX').addEventListener('input', () => {
-            textPosX = parseInt(document.getElementById('textPosX').value);
-            document.getElementById('textPosXVal').textContent = textPosX + '%';
-        });
-        document.getElementById('textPosY').addEventListener('input', () => {
-            textPosY = parseInt(document.getElementById('textPosY').value);
-            document.getElementById('textPosYVal').textContent = textPosY + '%';
-        });
+        document.getElementById('textPosX').addEventListener('input', () => { textPosX = parseInt(document.getElementById('textPosX').value); document.getElementById('textPosXVal').textContent = textPosX + '%'; });
+        document.getElementById('textPosY').addEventListener('input', () => { textPosY = parseInt(document.getElementById('textPosY').value); document.getElementById('textPosYVal').textContent = textPosY + '%'; });
 
         placeTextBtn.addEventListener('click', () => {
             const text = assistantTextInput.value.trim();
@@ -1725,8 +1023,7 @@
             if (!layerCanvas) return;
             saveSnapshot();
             const lctx = layerCanvas.getContext('2d');
-            const fontSize = parseInt(assistantTextSize.value);
-            const fontFamily = assistantFontSelect.value;
+            const fontSize = parseInt(assistantTextSize.value); const fontFamily = assistantFontSelect.value;
             let fontStyle = '';
             if (textBold) fontStyle += 'bold ';
             if (textItalic) fontStyle += 'italic ';
@@ -1737,23 +1034,16 @@
             lctx.fillText(text, pos.x - lctx.measureText(text).width / 2, pos.y);
             if (textUnderline) {
                 const metrics = lctx.measureText(text);
-                lctx.beginPath();
-                lctx.strokeStyle = assistantTextColor.value;
-                lctx.lineWidth = Math.max(1, fontSize / 12);
-                lctx.moveTo(pos.x - metrics.width / 2, pos.y + 2);
-                lctx.lineTo(pos.x + metrics.width / 2, pos.y + 2);
-                lctx.stroke();
+                lctx.beginPath(); lctx.strokeStyle = assistantTextColor.value; lctx.lineWidth = Math.max(1, fontSize / 12);
+                lctx.moveTo(pos.x - metrics.width / 2, pos.y + 2); lctx.lineTo(pos.x + metrics.width / 2, pos.y + 2); lctx.stroke();
             }
-            lctx.globalAlpha = 1;
-            compositeLayers();
-            assistantTextInput.value = '';
+            lctx.globalAlpha = 1; compositeLayers(); assistantTextInput.value = '';
         });
 
         document.querySelectorAll('#shapeGrid .shape-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('#shapeGrid .shape-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                selectedShape = btn.dataset.shape;
+                btn.classList.add('active'); selectedShape = btn.dataset.shape;
             });
         });
         assistantShapeW.addEventListener('input', () => assistantShapeWVal.textContent = assistantShapeW.value);
@@ -1765,75 +1055,41 @@
                 btn.classList.add('active');
                 const pos = btn.dataset.pos;
                 const map = { tl: [10, 10], tc: [50, 10], tr: [90, 10], ml: [10, 50], mc: [50, 50], mr: [90, 50], bl: [10, 90], bc: [50, 90], br: [90, 90] };
-                shapePosX = map[pos][0];
-                shapePosY = map[pos][1];
-                document.getElementById('shapePosX').value = shapePosX;
-                document.getElementById('shapePosY').value = shapePosY;
-                document.getElementById('shapePosXVal').textContent = shapePosX + '%';
-                document.getElementById('shapePosYVal').textContent = shapePosY + '%';
+                shapePosX = map[pos][0]; shapePosY = map[pos][1];
+                document.getElementById('shapePosX').value = shapePosX; document.getElementById('shapePosY').value = shapePosY;
+                document.getElementById('shapePosXVal').textContent = shapePosX + '%'; document.getElementById('shapePosYVal').textContent = shapePosY + '%';
             });
         });
-        document.getElementById('shapePosX').addEventListener('input', () => {
-            shapePosX = parseInt(document.getElementById('shapePosX').value);
-            document.getElementById('shapePosXVal').textContent = shapePosX + '%';
-        });
-        document.getElementById('shapePosY').addEventListener('input', () => {
-            shapePosY = parseInt(document.getElementById('shapePosY').value);
-            document.getElementById('shapePosYVal').textContent = shapePosY + '%';
-        });
+        document.getElementById('shapePosX').addEventListener('input', () => { shapePosX = parseInt(document.getElementById('shapePosX').value); document.getElementById('shapePosXVal').textContent = shapePosX + '%'; });
+        document.getElementById('shapePosY').addEventListener('input', () => { shapePosY = parseInt(document.getElementById('shapePosY').value); document.getElementById('shapePosYVal').textContent = shapePosY + '%'; });
 
         drawShapeBtn.addEventListener('click', () => {
             const layerCanvas = getActiveLayerCanvas();
-            if (!layerCanvas) return;
-            saveSnapshot();
+            if (!layerCanvas) return; saveSnapshot();
             const lctx = layerCanvas.getContext('2d');
-            const w = parseInt(assistantShapeW.value);
-            const h = parseInt(assistantShapeH.value);
-            const color = assistantShapeColor.value;
-            const pos = getPosition(shapePosX, shapePosY);
-            const cx = pos.x,
-                cy = pos.y;
-            lctx.strokeStyle = color;
-            lctx.fillStyle = color;
-            lctx.lineWidth = Math.max(2, Math.min(w, h) / 20);
+            const w = parseInt(assistantShapeW.value), h = parseInt(assistantShapeH.value), color = assistantShapeColor.value;
+            const pos = getPosition(shapePosX, shapePosY), cx = pos.x, cy = pos.y;
+            lctx.strokeStyle = color; lctx.fillStyle = color; lctx.lineWidth = Math.max(2, Math.min(w, h) / 20);
             lctx.beginPath();
             switch (selectedShape) {
-                case 'square':
-                    lctx.strokeRect(cx - w / 2, cy - h / 2, w, h); break;
-                case 'rectangle':
-                    lctx.strokeRect(cx - w / 2, cy - h / 2, w, h); break;
-                case 'triangle':
-                    lctx.moveTo(cx, cy - h / 2); lctx.lineTo(cx - w / 2, cy + h / 2); lctx.lineTo(cx + w / 2, cy + h / 2); lctx.closePath(); lctx.stroke(); break;
-                case 'circle':
-                    lctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2); lctx.stroke(); break;
-                case 'semicircle':
-                    lctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI); lctx.closePath(); lctx.stroke(); break;
-                case 'ellipse':
-                    lctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2); lctx.stroke(); break;
-                case 'diamond':
-                    lctx.moveTo(cx, cy - h / 2); lctx.lineTo(cx + w / 2, cy); lctx.lineTo(cx, cy + h / 2); lctx.lineTo(cx - w / 2, cy); lctx.closePath(); lctx.stroke(); break;
-                case 'pentagon':
-                    for (let i = 0; i < 5; i++) { const angle = (i * 72 - 90) * Math.PI / 180; const px = cx + (w / 2) * Math.cos(angle); const py = cy + (h / 2) * Math.sin(angle); i === 0 ? lctx.moveTo(px, py) : lctx.lineTo(px, py); } lctx.closePath(); lctx.stroke(); break;
-                case 'hexagon':
-                    for (let i = 0; i < 6; i++) { const angle = (i * 60) * Math.PI / 180; const px = cx + (w / 2) * Math.cos(angle); const py = cy + (h / 2) * Math.sin(angle); i === 0 ? lctx.moveTo(px, py) : lctx.lineTo(px, py); } lctx.closePath(); lctx.stroke(); break;
-                case 'star':
-                    const spikes = 5, outerR = w / 2, innerR = w / 4; for (let i = 0; i < spikes * 2; i++) { const r = i % 2 === 0 ? outerR : innerR; const angle = (i * Math.PI / spikes) - Math.PI / 2; const px = cx + r * Math.cos(angle); const py = cy + r * Math.sin(angle); i === 0 ? lctx.moveTo(px, py) : lctx.lineTo(px, py); } lctx.closePath(); lctx.stroke(); break;
-                case 'arrow':
-                    lctx.moveTo(cx - w / 2, cy); lctx.lineTo(cx + w / 2, cy); lctx.moveTo(cx + w / 2, cy); lctx.lineTo(cx + w / 4, cy - h / 3); lctx.moveTo(cx + w / 2, cy); lctx.lineTo(cx + w / 4, cy + h / 3); lctx.stroke(); break;
-                case 'cross':
-                    lctx.moveTo(cx - w / 2, cy); lctx.lineTo(cx + w / 2, cy); lctx.moveTo(cx, cy - h / 2); lctx.lineTo(cx, cy + h / 2); lctx.stroke(); break;
-                case 'heart':
-                    lctx.moveTo(cx, cy + h / 2); lctx.bezierCurveTo(cx - w / 2, cy, cx - w / 2, cy - h / 2, cx, cy - h / 3); lctx.bezierCurveTo(cx + w / 2, cy - h / 2, cx + w / 2, cy, cx, cy + h / 2); lctx.stroke(); break;
-                case 'trapezoid':
-                    lctx.moveTo(cx - w / 3, cy - h / 2); lctx.lineTo(cx + w / 3, cy - h / 2); lctx.lineTo(cx + w / 2, cy + h / 2); lctx.lineTo(cx - w / 2, cy + h / 2); lctx.closePath(); lctx.stroke(); break;
-                case 'diagonal':
-                    lctx.moveTo(cx - w / 2, cy - h / 2); lctx.lineTo(cx + w / 2, cy + h / 2); lctx.stroke(); break;
-                case 'hline':
-                    lctx.moveTo(cx - w / 2, cy); lctx.lineTo(cx + w / 2, cy); lctx.stroke(); break;
-                case 'vline':
-                    lctx.moveTo(cx, cy - h / 2); lctx.lineTo(cx, cy + h / 2); lctx.stroke(); break;
-                case 'cloud':
-                    const r = w / 4; lctx.arc(cx - r, cy, r, 0, Math.PI * 2); lctx.arc(cx + r, cy - r * 0.6, r * 1.2, 0, Math.PI * 2); lctx.arc(cx + r * 1.8, cy + r * 0.2, r * 0.8, 0, Math.PI * 2); lctx.arc(cx, cy + r * 0.5, r * 0.9, 0, Math.PI * 2); lctx.stroke(); break;
+                case 'square': lctx.strokeRect(cx - w / 2, cy - h / 2, w, h); break;
+                case 'rectangle': lctx.strokeRect(cx - w / 2, cy - h / 2, w, h); break;
+                case 'triangle': lctx.moveTo(cx, cy - h / 2); lctx.lineTo(cx - w / 2, cy + h / 2); lctx.lineTo(cx + w / 2, cy + h / 2); lctx.closePath(); lctx.stroke(); break;
+                case 'circle': lctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2); lctx.stroke(); break;
+                case 'semicircle': lctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI); lctx.closePath(); lctx.stroke(); break;
+                case 'ellipse': lctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2); lctx.stroke(); break;
+                case 'diamond': lctx.moveTo(cx, cy - h / 2); lctx.lineTo(cx + w / 2, cy); lctx.lineTo(cx, cy + h / 2); lctx.lineTo(cx - w / 2, cy); lctx.closePath(); lctx.stroke(); break;
+                case 'pentagon': for (let i = 0; i < 5; i++) { const angle = (i * 72 - 90) * Math.PI / 180; const px = cx + (w / 2) * Math.cos(angle); const py = cy + (h / 2) * Math.sin(angle); i === 0 ? lctx.moveTo(px, py) : lctx.lineTo(px, py); } lctx.closePath(); lctx.stroke(); break;
+                case 'hexagon': for (let i = 0; i < 6; i++) { const angle = (i * 60) * Math.PI / 180; const px = cx + (w / 2) * Math.cos(angle); const py = cy + (h / 2) * Math.sin(angle); i === 0 ? lctx.moveTo(px, py) : lctx.lineTo(px, py); } lctx.closePath(); lctx.stroke(); break;
+                case 'star': const spikes = 5, outerR = w / 2, innerR = w / 4; for (let i = 0; i < spikes * 2; i++) { const r = i % 2 === 0 ? outerR : innerR; const angle = (i * Math.PI / spikes) - Math.PI / 2; const px = cx + r * Math.cos(angle); const py = cy + r * Math.sin(angle); i === 0 ? lctx.moveTo(px, py) : lctx.lineTo(px, py); } lctx.closePath(); lctx.stroke(); break;
+                case 'arrow': lctx.moveTo(cx - w / 2, cy); lctx.lineTo(cx + w / 2, cy); lctx.moveTo(cx + w / 2, cy); lctx.lineTo(cx + w / 4, cy - h / 3); lctx.moveTo(cx + w / 2, cy); lctx.lineTo(cx + w / 4, cy + h / 3); lctx.stroke(); break;
+                case 'cross': lctx.moveTo(cx - w / 2, cy); lctx.lineTo(cx + w / 2, cy); lctx.moveTo(cx, cy - h / 2); lctx.lineTo(cx, cy + h / 2); lctx.stroke(); break;
+                case 'heart': lctx.moveTo(cx, cy + h / 2); lctx.bezierCurveTo(cx - w / 2, cy, cx - w / 2, cy - h / 2, cx, cy - h / 3); lctx.bezierCurveTo(cx + w / 2, cy - h / 2, cx + w / 2, cy, cx, cy + h / 2); lctx.stroke(); break;
+                case 'trapezoid': lctx.moveTo(cx - w / 3, cy - h / 2); lctx.lineTo(cx + w / 3, cy - h / 2); lctx.lineTo(cx + w / 2, cy + h / 2); lctx.lineTo(cx - w / 2, cy + h / 2); lctx.closePath(); lctx.stroke(); break;
+                case 'diagonal': lctx.moveTo(cx - w / 2, cy - h / 2); lctx.lineTo(cx + w / 2, cy + h / 2); lctx.stroke(); break;
+                case 'hline': lctx.moveTo(cx - w / 2, cy); lctx.lineTo(cx + w / 2, cy); lctx.stroke(); break;
+                case 'vline': lctx.moveTo(cx, cy - h / 2); lctx.lineTo(cx, cy + h / 2); lctx.stroke(); break;
+                case 'cloud': const r = w / 4; lctx.arc(cx - r, cy, r, 0, Math.PI * 2); lctx.arc(cx + r, cy - r * 0.6, r * 1.2, 0, Math.PI * 2); lctx.arc(cx + r * 1.8, cy + r * 0.2, r * 0.8, 0, Math.PI * 2); lctx.arc(cx, cy + r * 0.5, r * 0.9, 0, Math.PI * 2); lctx.stroke(); break;
             }
             compositeLayers();
         });
@@ -1842,8 +1098,7 @@
             if (usedTips.length === drawingTips.length) usedTips = [];
             let available = drawingTips.filter(t => !usedTips.includes(t));
             let tip = available[Math.floor(Math.random() * available.length)];
-            usedTips.push(tip);
-            tipDisplay.textContent = tip;
+            usedTips.push(tip); tipDisplay.textContent = tip;
         });
 
         document.getElementById('backBtn').addEventListener('click', () => { undo(); });
@@ -1852,46 +1107,28 @@
         colorPicker.addEventListener('input', () => { currentColor = colorPicker.value; });
 
         document.getElementById('addLayerBtn').addEventListener('click', () => {
-            saveSnapshot();
-            layers.push({ canvas: createLayerCanvas(mainCanvas.width, mainCanvas.height, true), name: `Layer ${layers.length+1}`, visible: true });
-            activeLayerIndex = layers.length - 1;
-            renderLayerList();
-            compositeLayers();
+            saveSnapshot(); layers.push({ canvas: createLayerCanvas(mainCanvas.width, mainCanvas.height, true), name: `Layer ${layers.length+1}`, visible: true });
+            activeLayerIndex = layers.length - 1; renderLayerList(); compositeLayers();
         });
         document.getElementById('deleteLayerBtn').addEventListener('click', () => {
-            if (layers.length <= 1) return;
-            saveSnapshot();
-            layers.splice(activeLayerIndex, 1);
-            if (activeLayerIndex >= layers.length) activeLayerIndex = layers.length - 1;
-            renderLayerList();
-            compositeLayers();
+            if (layers.length <= 1) return; saveSnapshot(); layers.splice(activeLayerIndex, 1);
+            if (activeLayerIndex >= layers.length) activeLayerIndex = layers.length - 1; renderLayerList(); compositeLayers();
         });
         document.getElementById('mergeDownBtn').addEventListener('click', () => {
             if (activeLayerIndex === 0 || layers.length < 2) { alert('Select a layer above the bottom one.'); return; }
-            saveSnapshot();
-            const upper = layers[activeLayerIndex].canvas;
-            const lower = layers[activeLayerIndex - 1].canvas;
-            lower.getContext('2d').drawImage(upper, 0, 0);
-            layers.splice(activeLayerIndex, 1);
-            activeLayerIndex--;
-            renderLayerList();
-            compositeLayers();
+            saveSnapshot(); const upper = layers[activeLayerIndex].canvas; const lower = layers[activeLayerIndex - 1].canvas;
+            lower.getContext('2d').drawImage(upper, 0, 0); layers.splice(activeLayerIndex, 1); activeLayerIndex--;
+            renderLayerList(); compositeLayers();
         });
         document.getElementById('duplicateLayerBtn').addEventListener('click', () => {
-            saveSnapshot();
-            const src = layers[activeLayerIndex].canvas;
-            const dup = createLayerCanvas(mainCanvas.width, mainCanvas.height, false);
+            saveSnapshot(); const src = layers[activeLayerIndex].canvas; const dup = createLayerCanvas(mainCanvas.width, mainCanvas.height, false);
             dup.getContext('2d').drawImage(src, 0, 0);
             layers.splice(activeLayerIndex + 1, 0, { canvas: dup, name: `${layers[activeLayerIndex].name} copy`, visible: true });
-            activeLayerIndex++;
-            renderLayerList();
-            compositeLayers();
+            activeLayerIndex++; renderLayerList(); compositeLayers();
         });
         document.getElementById('layerUndoBtn').addEventListener('click', () => { undo(); });
 
-        document.addEventListener('keydown', e => {
-            if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); } else if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
-        });
+        document.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); } else if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); } });
         document.getElementById('newBtn').addEventListener('click', () => { if (confirm('New canvas?')) newCanvas(); });
 
         document.getElementById('saveDraftBtn').addEventListener('click', () => {
@@ -1913,10 +1150,7 @@
                 img.src = d;
                 layers.push({ canvas: c, name: `Layer ${i+1}`, visible: true });
             });
-            activeLayerIndex = 0;
-            saveSnapshot();
-            renderLayerList();
-            alert('Draft loaded.');
+            activeLayerIndex = 0; saveSnapshot(); renderLayerList(); alert('Draft loaded.');
         });
 
         function toggleLeft() { leftPanel.classList.toggle('open'); }
@@ -1925,115 +1159,55 @@
         rightToggle.addEventListener('click', toggleRight);
 
         document.getElementById('downloadBtn').addEventListener('click', function() {
-            alert("We deeply respect your privacy and intellectual property rights.\n\n" +
-                "To protect your artwork from unauthorized use or theft, we do not store or transmit your images to external servers.\n\n" +
-                "We kindly advise you to take a direct screenshot of your canvas using your device's native screenshot tools. This ensures your creation stays completely on your device and under your full control."
-            );
+            alert("We deeply respect your privacy and intellectual property rights.\n\n" + "To protect your artwork from unauthorized use or theft, we do not store or transmit your images to external servers.\n\n" + "We kindly advise you to take a direct screenshot of your canvas using your device's native screenshot tools. This ensures your creation stays completely on your device and under your full control.");
         });
 
         const recordBtn = document.getElementById('recordBtn');
-        let mediaRecorder = null;
-        let recordedChunks = [];
-        let isRecording = false;
-
+        let mediaRecorder = null, recordedChunks = [], isRecording = false;
         recordBtn.addEventListener('click', async () => {
-            if (!is3D) {
-                alert('Please enable 3D / 360° mode first.');
-                return;
-            }
-
+            if (!is3D) { alert('Please enable 3D / 360° mode first.'); return; }
             if (!isRecording) {
-                isRecording = true;
-                recordedChunks = [];
-                recordBtn.textContent = '⬛ Stop';
-                recordBtn.style.background = 'var(--accent)';
-
+                isRecording = true; recordedChunks = [];
+                recordBtn.textContent = '⬛ Stop'; recordBtn.style.background = 'var(--accent)';
                 try {
                     const stream = renderer3D.domElement.captureStream(30);
                     mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm', videoBitsPerSecond: 500000 });
-
-                    mediaRecorder.ondataavailable = (e) => {
-                        if (e.data.size > 0) recordedChunks.push(e.data);
-                    };
-
+                    mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
                     mediaRecorder.onstop = async () => {
                         const blob = new Blob(recordedChunks, { type: 'video/webm' });
                         const videoUrl = URL.createObjectURL(blob);
-
                         const videoModal = document.createElement('div');
-                        videoModal.style.cssText = `
-                            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                            background: rgba(0, 0, 0, 0.95); z-index: 9999;
-                            display: flex; flex-direction: column; justify-content: center; align-items: center;
-                            padding: 20px;
-                        `;
-
+                        videoModal.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;`;
                         const videoElem = document.createElement('video');
-                        videoElem.src = videoUrl;
-                        videoElem.controls = true;
-                        videoElem.autoplay = true;
-                        videoElem.muted = false;
+                        videoElem.src = videoUrl; videoElem.controls = true; videoElem.autoplay = true; videoElem.muted = false;
                         videoElem.style.cssText = `max-width: 100%; max-height: 60%; background: black; border-radius: 12px; object-fit: contain;`;
                         videoElem.setAttribute('controlsList', 'nodownload');
-
                         const btnContainer = document.createElement('div');
                         btnContainer.style.cssText = `margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%; max-width: 340px;`;
-
                         const downloadBtn = document.createElement('button');
                         downloadBtn.textContent = '📥 Download (Video)';
                         downloadBtn.style.cssText = `padding: 12px 20px; background: #4ecdc4; color: #000; border: none; border-radius: 12px; font-size: 15px; cursor: pointer; width: 100%; font-weight: bold;`;
-
                         downloadBtn.onclick = async () => {
-                            alert("Your privacy and copyright are very important to us.\n\n" +
-                                "We strictly avoid any external cloud uploads to keep your creation safe. Direct downloading from the app is disabled to prevent any risk to your ownership.\n\n" +
-                                "Please use your device's built-in Screen Recorder (found in your Quick Settings dropdown) to record your 3D/360° animation. The video will be saved automatically and securely into your device's Downloads folder, fully preserving your rights."
-                            );
+                            alert("Your privacy and copyright are very important to us.\n\n" + "We strictly avoid any external cloud uploads to keep your creation safe. Direct downloading from the app is disabled to prevent any risk to your ownership.\n\n" + "Please use your device's built-in Screen Recorder (found in your Quick Settings dropdown) to record your 3D/360° animation. The video will be saved automatically and securely into your device's Downloads folder, fully preserving your rights.");
                         };
-
                         const closeBtn = document.createElement('button');
-                        closeBtn.textContent = '✕ Close';
-                        closeBtn.style.cssText = `padding: 12px 20px; background: #444; color: white; border: none; border-radius: 12px; font-size: 15px; cursor: pointer; width: 100%;`;
-                        closeBtn.onclick = () => {
-                            document.body.removeChild(videoModal);
-                            URL.revokeObjectURL(videoUrl);
-                        };
-
-                        btnContainer.appendChild(downloadBtn);
-                        btnContainer.appendChild(closeBtn);
-                        videoModal.appendChild(videoElem);
-                        videoModal.appendChild(btnContainer);
+                        closeBtn.textContent = '✕ Close'; closeBtn.style.cssText = `padding: 12px 20px; background: #444; color: white; border: none; border-radius: 12px; font-size: 15px; cursor: pointer; width: 100%;`;
+                        closeBtn.onclick = () => { document.body.removeChild(videoModal); URL.revokeObjectURL(videoUrl); };
+                        btnContainer.appendChild(downloadBtn); btnContainer.appendChild(closeBtn);
+                        videoModal.appendChild(videoElem); videoModal.appendChild(btnContainer);
                         document.body.appendChild(videoModal);
                     };
-
                     mediaRecorder.start();
-                } catch (err) {
-                    alert('Recording error: ' + err.message);
-                    isRecording = false;
-                    recordBtn.textContent = '🔴 Record';
-                    recordBtn.style.background = 'var(--surface2)';
-                }
+                } catch (err) { alert('Recording error: ' + err.message); isRecording = false; recordBtn.textContent = '🔴 Record'; recordBtn.style.background = 'var(--surface2)'; }
             } else {
-                isRecording = false;
-                recordBtn.textContent = '🔴 Record';
-                recordBtn.style.background = 'var(--surface2)';
-                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                    mediaRecorder.stop();
-                }
+                isRecording = false; recordBtn.textContent = '🔴 Record'; recordBtn.style.background = 'var(--surface2)';
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') { mediaRecorder.stop(); }
             }
         });
 
         function saveAutoSnapshot() {
             if (layers.length === 0) return;
-            try {
-                const data = layers.map(l => ({
-                    dataURL: l.canvas.toDataURL(),
-                    name: l.name,
-                    visible: l.visible
-                }));
-                localStorage.setItem('procreate_autosave', JSON.stringify(data));
-            } catch (e) {
-                console.warn('Auto-save failed:', e);
-            }
+            try { const data = layers.map(l => ({ dataURL: l.canvas.toDataURL(), name: l.name, visible: l.visible })); localStorage.setItem('procreate_autosave', JSON.stringify(data)); } catch (e) { console.warn('Auto-save failed:', e); }
         }
 
         function restoreAutoSnapshot() {
@@ -2042,42 +1216,25 @@
             try {
                 const data = JSON.parse(saved);
                 if (!data || data.length === 0) return false;
-                layers = [];
-                let loaded = 0;
+                layers = []; let loaded = 0;
                 data.forEach((item, idx) => {
                     const c = createLayerCanvas(mainCanvas.width, mainCanvas.height, false);
                     const img = new Image();
                     img.onload = () => {
                         c.getContext('2d').drawImage(img, 0, 0);
                         loaded++;
-                        if (loaded === data.length) {
-                            compositeLayers();
-                            renderLayerList();
-                            activeLayerIndex = 0;
-                            saveSnapshot();
-                        }
+                        if (loaded === data.length) { compositeLayers(); renderLayerList(); activeLayerIndex = 0; saveSnapshot(); }
                     };
                     img.src = item.dataURL;
-                    layers.push({
-                        canvas: c,
-                        name: item.name || `Layer ${idx + 1}`,
-                        visible: item.visible !== undefined ? item.visible : true
-                    });
+                    layers.push({ canvas: c, name: item.name || `Layer ${idx + 1}`, visible: item.visible !== undefined ? item.visible : true });
                 });
-                activeLayerIndex = 0;
-                return true;
-            } catch (e) {
-                console.warn('Auto-restore failed:', e);
-                return false;
-            }
+                activeLayerIndex = 0; return true;
+            } catch (e) { console.warn('Auto-restore failed:', e); return false; }
         }
 
         resizeCanvas();
         const restored = restoreAutoSnapshot();
-        if (!restored) {
-            newCanvas();
-        }
-
+        if (!restored) { newCanvas(); }
         console.log('✅ Procreate+ Studio fully repaired and ready.');
     </script>
 </body>
