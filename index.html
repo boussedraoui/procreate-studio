@@ -103,6 +103,11 @@
             border-color: var(--accent2);
             color: #000;
         }
+        button.premium-unlocked {
+            background: var(--accent2);
+            border-color: var(--accent2);
+            color: #000;
+        }
         select {
             background: var(--surface2);
             border: 1px solid var(--border);
@@ -457,6 +462,52 @@
         #uploadInput {
             display: none;
         }
+
+        /* --- Premium Modal Styles (ADDED) --- */
+        .premium-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .premium-modal.active {
+            display: flex;
+        }
+        .premium-modal-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+        .premium-modal-content h2 {
+            color: var(--accent2);
+            margin-bottom: 10px;
+        }
+        .premium-modal-content p {
+            color: var(--text);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .premium-modal-content button {
+            width: 100%;
+            margin: 6px 0;
+            justify-content: center;
+        }
+        .premium-modal-content .cancel-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+        }
     </style>
 </head>
 <body>
@@ -475,6 +526,8 @@
             <input type="file" id="uploadInput" accept="image/*, .svg, .pdf" />
             <button id="downloadBtn">⬇️ Download</button>
             <button id="toggle3D" class="accent">🌐 3D / 360°</button>
+            <!-- NEW: Premium Unlock Button -->
+            <button id="unlockPremiumBtn" style="background: var(--accent); border-color: var(--accent); color: #fff; font-weight:600;">🔓 Unlock Premium</button>
         </div>
 
         <div class="workspace">
@@ -632,6 +685,16 @@
         <button id="exitFullscreenBtn" style="position:absolute; top:10px; right:10px; background:#2a2a2e; color:white; border:none; padding:8px 16px; border-radius:12px; cursor:pointer;">✕ Exit Fullscreen</button>
     </div>
 
+    <!-- NEW: Premium Modal -->
+    <div id="premiumModal" class="premium-modal">
+        <div class="premium-modal-content">
+            <h2>🔓 Unlock Premium</h2>
+            <p>This feature is available only with a Premium subscription. Get full access to Assistant, 3D, Recording, and more for just <strong>$5.99 / month</strong>.</p>
+            <button id="premiumPurchaseBtn" style="background: var(--accent2); border-color: var(--accent2); color: #000; font-weight: bold;">Subscribe Now</button>
+            <button class="cancel-btn" id="premiumCancelBtn">Maybe later</button>
+        </div>
+    </div>
+
     <script type="importmap">
         {
             "imports": {
@@ -745,6 +808,319 @@
             "Duplicate a layer before making major changes as a backup."
         ];
         let usedTips = [];
+
+        // ========== Premium features lock (ADDED) ==========
+        const premiumModal = document.getElementById('premiumModal');
+        const unlockPremiumBtn = document.getElementById('unlockPremiumBtn');
+        const premiumPurchaseBtn = document.getElementById('premiumPurchaseBtn');
+        const premiumCancelBtn = document.getElementById('premiumCancelBtn');
+        const storeProductId = '9PMJWQWFVSH7'; // Your subscription Store ID
+
+        let isPremium = false; // will be set from localStorage
+        let pendingLockedAction = null; // store which action to unlock after purchase
+
+        // Check premium status
+        function checkPremium() {
+            const stored = localStorage.getItem('procreate_premium');
+            if (stored === 'true') {
+                isPremium = true;
+                updatePremiumUI();
+                return true;
+            }
+            // Optionally verify with Store API (only in Windows Store context)
+            if (window.Windows && Windows.Services.Store) {
+                // We can attempt to verify license, but we'll keep it simple for now
+                // For a real app, you'd call getStoreProductForCurrentAppAsync
+            }
+            return false;
+        }
+
+        function setPremium(status) {
+            isPremium = status;
+            localStorage.setItem('procreate_premium', status ? 'true' : 'false');
+            updatePremiumUI();
+        }
+
+        function updatePremiumUI() {
+            if (isPremium) {
+                unlockPremiumBtn.textContent = '✅ Premium';
+                unlockPremiumBtn.className = 'premium-unlocked';
+                premiumModal.classList.remove('active');
+            } else {
+                unlockPremiumBtn.textContent = '🔓 Unlock Premium';
+                unlockPremiumBtn.className = '';
+            }
+        }
+
+        // Show modal and store the action that triggered it
+        function requirePremium(actionCallback) {
+            if (isPremium) {
+                if (typeof actionCallback === 'function') actionCallback();
+                return;
+            }
+            pendingLockedAction = actionCallback;
+            premiumModal.classList.add('active');
+        }
+
+        // Purchase function
+        async function purchasePremium() {
+            try {
+                // Check if running in Windows Store context
+                if (window.Windows && Windows.Services.Store) {
+                    const context = Windows.Services.Store.StoreContext.getForCurrentView();
+                    const result = await context.requestPurchaseAsync(storeProductId);
+                    if (result.status === Windows.Services.Store.StorePurchaseStatus.succeeded) {
+                        setPremium(true);
+                        if (pendingLockedAction) {
+                            pendingLockedAction();
+                            pendingLockedAction = null;
+                        }
+                        premiumModal.classList.remove('active');
+                    } else {
+                        alert('Purchase was not completed. Please try again.');
+                    }
+                } else {
+                    // Fallback for development – simulate purchase
+                    alert('This is a demo. In the Store version, this would open the purchase dialog.');
+                    setPremium(true);
+                    if (pendingLockedAction) {
+                        pendingLockedAction();
+                        pendingLockedAction = null;
+                    }
+                    premiumModal.classList.remove('active');
+                }
+            } catch (error) {
+                console.error('Purchase error:', error);
+                alert('An error occurred during purchase: ' + error.message);
+            }
+        }
+
+        // Event listeners for premium modal
+        unlockPremiumBtn.addEventListener('click', () => {
+            if (isPremium) {
+                alert('You already have Premium!');
+                return;
+            }
+            premiumModal.classList.add('active');
+        });
+
+        premiumPurchaseBtn.addEventListener('click', purchasePremium);
+
+        premiumCancelBtn.addEventListener('click', () => {
+            premiumModal.classList.remove('active');
+            pendingLockedAction = null;
+        });
+
+        // Override assistant dropdown open to require premium
+        const originalAssistantClick = assistantBtn.click; // backup, not needed
+        assistantBtn.addEventListener('click', (e) => {
+            // Only block if not premium
+            if (!isPremium) {
+                e.stopPropagation();
+                requirePremium(() => {
+                    // Actually open the dropdown after purchase
+                    assistantDropdown.classList.add('open');
+                });
+                return;
+            }
+            // If premium, behave normally (but we need to prevent the existing handler from firing twice)
+            // We'll override the existing handler later
+        });
+
+        // Override 3D toggle
+        toggle3DBtn.addEventListener('click', (e) => {
+            if (!isPremium) {
+                e.stopPropagation();
+                requirePremium(() => {
+                    // Actually enable 3D after purchase
+                    if (is3D) disable3D();
+                    else enable3D();
+                });
+                return;
+            }
+            // If premium, allow normal toggle (but we need to avoid duplicate handlers)
+        });
+
+        // Override record button
+        document.getElementById('recordBtn').addEventListener('click', (e) => {
+            if (!isPremium) {
+                e.stopPropagation();
+                requirePremium(() => {
+                    // Actually start recording after purchase
+                    recordBtn.click(); // simulate original click
+                });
+                return;
+            }
+        });
+
+        // Override save/load/upload/download (optional – we can leave them free or lock)
+        // We'll lock save/load/upload/download as they are "extra"
+        const premiumExtraFeatures = [
+            'saveDraftBtn', 'loadDraftBtn', 'uploadBtn', 'downloadBtn'
+        ];
+        premiumExtraFeatures.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('click', (e) => {
+                    if (!isPremium) {
+                        e.stopPropagation();
+                        requirePremium(() => {
+                            // Re-trigger the click after unlock
+                            el.click();
+                        });
+                    }
+                });
+            }
+        });
+
+        // Also lock fullscreen? we keep it free for now.
+
+        // We need to patch the existing handlers that we just overrode.
+        // To avoid double handling, we'll use a flag or we can remove the original listeners?
+        // The easiest way: we wrap the original event handlers with a premium check.
+        // But since we already added new listeners, we must prevent the original ones from firing when premium check fails.
+        // We'll use a strategy: store original listeners and only call them if premium.
+        // Since the original handlers are already attached, we can't easily remove them.
+        // Instead, we'll change the original functions to check premium before executing.
+        // We'll patch the original functions by overriding them.
+
+        // ----- Patching original functions -----
+        // 1. assistantBtn click: we'll modify the original event handler.
+        // Since original is defined earlier in the script (in the module), we can't modify it directly.
+        // We'll create a new handler that calls the original only if premium.
+        // We'll store the original handler and replace it.
+
+        // We'll attach a new listener that runs before the original and can prevent it.
+        // We'll use capturing phase or stopImmediatePropagation.
+        // Simpler: we'll override the original click by removing all listeners and adding our own.
+        // But we don't have access to the original listener function.
+        // Instead, we'll hijack the click event using a higher priority listener.
+        // Use a capturing phase listener that stops propagation if not premium.
+
+        function addPremiumGuard(element, action) {
+            // We'll add a capturing phase listener
+            element.addEventListener('click', function(e) {
+                if (!isPremium) {
+                    e.stopImmediatePropagation();
+                    requirePremium(action);
+                }
+            }, true); // capturing phase
+        }
+
+        // Apply guards to premium features
+        addPremiumGuard(assistantBtn, () => {
+            assistantDropdown.classList.add('open');
+        });
+        addPremiumGuard(toggle3DBtn, () => {
+            if (is3D) disable3D();
+            else enable3D();
+        });
+        addPremiumGuard(document.getElementById('recordBtn'), () => {
+            // This will be overridden by the original handler; we'll just call the original via a flag
+            // Actually we can just let the original run after we unlock.
+            // But we need to ensure it doesn't run before.
+            // We'll use a flag to indicate that the guard has allowed it.
+            // Simpler: we'll let the original handler run, but we disable it until premium.
+            // Because we already have a separate listener that prevents default, the original won't fire.
+            // But we added our own listener that stops propagation, so original won't fire.
+            // So we need to manually trigger the original action when premium.
+            // We'll store a reference to the original function? Not possible.
+            // Alternatively, we can override the original event listener by removing all listeners and re-adding our own.
+            // This is complex.
+            // Since this is a practical solution, we'll instead modify the existing event handlers by wrapping them.
+            // We'll use a more robust method: after the original script runs, we will replace the event listeners.
+
+            // We'll do a simple approach: we'll override the original functions directly.
+            // We'll save the original functions and replace them.
+        });
+
+        // To keep it clean, we'll not use addPremiumGuard but directly override the existing event handlers by grabbing them? 
+        // Not possible easily.
+
+        // We'll use a different strategy: we'll set a flag `_premiumGuard` and in the original event handlers we check it.
+        // But we cannot modify the original code.
+
+        // Given the complexity and the requirement to not delete anything, we'll adopt a pragmatic solution:
+        // We'll add a high-priority event listener that will intercept the click and if not premium, it will show modal and stop propagation.
+        // This is what addPremiumGuard does (capturing phase). 
+        // However, the original listener is in bubbling phase, so capturing phase will run first and can stop propagation.
+
+        // So for each premium feature, we add a capturing phase listener that checks premium and stops propagation if not.
+        // If premium, we do nothing and let the original listener run.
+
+        // Let's implement that for all premium features.
+
+        function guardPremiumFeature(elementId, onPremiumAction) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            el.addEventListener('click', function(e) {
+                if (!isPremium) {
+                    e.stopImmediatePropagation();
+                    requirePremium(() => {
+                        // After purchase, we need to re-trigger the click with premium status true
+                        // But we can't simply trigger because the guard will still block.
+                        // Instead, we set a flag and manually execute the action.
+                        // We'll store the desired action in pendingLockedAction and after purchase we execute it.
+                        // In requirePremium, we store the action and call it after purchase.
+                        // So we need to pass the action that triggers the feature.
+                        // For now, we'll just pass the action to be executed after purchase.
+                        // In the guard, we call requirePremium with the action that directly triggers the feature.
+                        // The action should be the code that would normally run.
+                        // We'll define those actions.
+                    });
+                    // We'll handle the action in the guard itself.
+                }
+            }, true);
+        }
+
+        // But we need the action to be the actual feature trigger.
+        // For assistant: open dropdown.
+        // For 3D: toggle.
+        // For record: trigger record.
+        // For save/load/etc: trigger them.
+
+        // We'll refactor: we'll define the actions and pass them to guardPremiumFeature.
+
+        const premiumActions = {
+            assistant: () => { assistantDropdown.classList.add('open'); },
+            toggle3D: () => { if (is3D) disable3D(); else enable3D(); },
+            record: () => { recordBtn.click(); }, // we'll let the original click run after purchase
+            saveDraft: () => { document.getElementById('saveDraftBtn').click(); },
+            loadDraft: () => { document.getElementById('loadDraftBtn').click(); },
+            upload: () => { document.getElementById('uploadBtn').click(); },
+            download: () => { document.getElementById('downloadBtn').click(); }
+        };
+
+        function guardPremium(elementId, actionKey) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            el.addEventListener('click', function(e) {
+                if (!isPremium) {
+                    e.stopImmediatePropagation();
+                    requirePremium(() => {
+                        // Execute the action after purchase
+                        premiumActions[actionKey]();
+                    });
+                }
+            }, true);
+        }
+
+        // Apply guards
+        guardPremium('assistantBtn', 'assistant');
+        guardPremium('toggle3D', 'toggle3D');
+        guardPremium('recordBtn', 'record');
+        guardPremium('saveDraftBtn', 'saveDraft');
+        guardPremium('loadDraftBtn', 'loadDraft');
+        guardPremium('uploadBtn', 'upload');
+        guardPremium('downloadBtn', 'download');
+
+        // Also lock the Assistant dropdown content? The dropdown itself is only opened via button, so it's fine.
+        // Also lock 3D controls? They are only accessible after enabling 3D, so it's fine.
+
+        // Initialize premium status
+        checkPremium();
+
+        // End of premium section =============================================
 
         // ========== Position helpers ==========
         function getPosition(px, py) {
