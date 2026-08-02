@@ -332,7 +332,7 @@
         const fullscreenCanvas = document.getElementById('fullscreenCanvas');
         const fullscreenCtx = fullscreenCanvas.getContext('2d');
 
-        // ========== Premium features lock (REPAIRED & SIMPLIFIED) ==========
+        // ========== Premium features lock (with browser simulation) ==========
         const premiumModal = document.getElementById('premiumModal');
         const premiumModalText = document.getElementById('premiumModalText');
         const unlockPremiumBtn = document.getElementById('unlockPremiumBtn');
@@ -358,6 +358,11 @@
             localStorage.setItem('procreate_premium', status ? 'true' : 'false');
             updatePremiumUI();
             premiumModal.classList.remove('active');
+            // Execute any pending action after unlocking
+            if (status && window._pendingAction) {
+                window._pendingAction();
+                window._pendingAction = null;
+            }
         }
 
         function updatePremiumUI() {
@@ -370,10 +375,11 @@
             }
         }
 
-        // Purchase function
+        // Purchase function – supports both real Store and browser simulation
         async function purchasePremium() {
             try {
                 if (window.Windows && Windows.Services.Store) {
+                    // Real Microsoft Store purchase
                     const context = Windows.Services.Store.StoreContext.getForCurrentView();
                     const result = await context.requestPurchaseAsync(storeProductId);
                     if (result.status === Windows.Services.Store.StorePurchaseStatus.succeeded) {
@@ -383,9 +389,8 @@
                         premiumModal.classList.add('active');
                     }
                 } else {
-                    // In browser: show modal with lock message, NO ALERT
-                    premiumModalText.textContent = "⚠️ Premium features are only available in the official Microsoft Store app. Please download and purchase the app from the Microsoft Store to unlock all features.";
-                    premiumModal.classList.add('active');
+                    // Browser simulation: unlock immediately
+                    setPremium(true);
                 }
             } catch (error) {
                 console.error('Purchase error:', error);
@@ -401,15 +406,9 @@
                 premiumModal.classList.add('active');
                 return;
             }
-            // Check if we are in a real Windows Store context
-            if (window.Windows && Windows.Services.Store) {
-                premiumModalText.textContent = "This feature is available only with a Premium subscription. Get full access to Assistant, 3D, Recording, and more for just $5.99 / month.";
-                premiumModal.classList.add('active');
-            } else {
-                // In browser: show modal with lock message, NO ALERT
-                premiumModalText.textContent = "⚠️ This feature is locked. Please purchase the app from the Microsoft Store to unlock Premium.";
-                premiumModal.classList.add('active');
-            }
+            // Show purchase modal
+            premiumModalText.textContent = "This feature is available only with a Premium subscription. Get full access to Assistant, 3D, Recording, and more for just $5.99 / month.";
+            premiumModal.classList.add('active');
         });
 
         premiumPurchaseBtn.addEventListener('click', purchasePremium);
@@ -418,31 +417,20 @@
             premiumModal.classList.remove('active');
         });
 
-        // Apply guard for premium features (intercept clicks if not premium)
+        // Guard function for premium features
         function requirePremium(actionCallback) {
             if (isPremium) {
                 actionCallback();
                 return;
             }
             
-            // If in browser, don't let them pass
-            if (!(window.Windows && Windows.Services.Store)) {
-                premiumModalText.textContent = "⚠️ This feature is locked. Please purchase the app from the Microsoft Store to unlock Premium.";
-                premiumModal.classList.add('active');
-                return;
-            }
-            
-            // If in Store context, show purchase modal
+            // Show the modal and store the action to be executed after purchase
+            window._pendingAction = actionCallback;
             premiumModalText.textContent = "This feature is available only with a Premium subscription. Get full access to Assistant, 3D, Recording, and more for just $5.99 / month.";
             premiumModal.classList.add('active');
-            
-            // Since we can't easily pause execution, we'll store the action
-            // but we need a way to trigger it after purchase. 
-            // For simplicity, we'll use a global callback variable.
-            window._pendingAction = actionCallback;
         }
 
-        // Override premium actions using capturing phase to prevent default clicks
+        // Intercept clicks on premium features
         const premiumFeatures = [
             { id: 'assistantBtn', action: () => { assistantDropdown.classList.add('open'); } },
             { id: 'toggle3D', action: () => { if (is3D) disable3D(); else enable3D(); } },
@@ -459,35 +447,10 @@
             el.addEventListener('click', function(e) {
                 if (!isPremium) {
                     e.stopImmediatePropagation();
-                    requirePremium(() => {
-                        feature.action();
-                    });
+                    requirePremium(feature.action);
                 }
             }, true);
         });
-
-        // Modify premium purchase to run pending action
-        const originalPurchase = premiumPurchaseBtn.click;
-        premiumPurchaseBtn.addEventListener('click', async () => {
-            if (isPremium && window._pendingAction) {
-                window._pendingAction();
-                window._pendingAction = null;
-            }
-        });
-        // Actually, we need to handle it in the purchasePremium success block.
-        // Let's check the purchasePremium function. It calls setPremium(true).
-        // Let's modify setPremium to check for a pending action.
-        const originalSetPremium = setPremium;
-        setPremium = function(status) {
-            isPremium = status;
-            localStorage.setItem('procreate_premium', status ? 'true' : 'false');
-            updatePremiumUI();
-            premiumModal.classList.remove('active');
-            if (status && window._pendingAction) {
-                window._pendingAction();
-                window._pendingAction = null;
-            }
-        };
 
         // Initialize premium status
         checkPremium();
