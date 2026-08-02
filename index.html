@@ -508,6 +508,16 @@
             background: transparent;
             border: 1px solid var(--border);
         }
+
+        /* --- FIX for 3D Controls Bar --- */
+        #controlsBar.visible {
+            display: flex !important;
+            z-index: 9999 !important;
+            position: absolute !important;
+            bottom: 20px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+        }
     </style>
 </head>
 <body>
@@ -858,8 +868,15 @@
                 if (typeof actionCallback === 'function') actionCallback();
                 return;
             }
-            pendingLockedAction = actionCallback;
-            premiumModal.classList.add('active');
+
+            // Check if we are in a real Windows Store context
+            if (window.Windows && Windows.Services.Store) {
+                pendingLockedAction = actionCallback;
+                premiumModal.classList.add('active');
+            } else {
+                // If user is on a web browser, block access immediately
+                alert('⚠️ This feature is locked. Please purchase the app from the Microsoft Store to unlock Premium.');
+            }
         }
 
         // Purchase function
@@ -880,14 +897,9 @@
                         alert('Purchase was not completed. Please try again.');
                     }
                 } else {
-                    // Fallback for development – simulate purchase
-                    alert('This is a demo. In the Store version, this would open the purchase dialog.');
-                    setPremium(true);
-                    if (pendingLockedAction) {
-                        pendingLockedAction();
-                        pendingLockedAction = null;
-                    }
-                    premiumModal.classList.remove('active');
+                    // WEB BROWSER FALLBACK - DO NOT GIVE PREMIUM FOR FREE
+                    alert('⚠️ Premium features are only available in the official Microsoft Store app. Please download and purchase the app from the Microsoft Store to unlock all features.');
+                    return; // We explicitly block the unlock here.
                 }
             } catch (error) {
                 console.error('Purchase error:', error);
