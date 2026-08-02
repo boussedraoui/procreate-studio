@@ -2243,5 +2243,38 @@
 
         console.log('✅ Procreate+ Studio fully repaired and ready.');
     </script>
+    
+<!-- Privacy Policy Modal (Added after Premium) -->
+<div id="privacyModal" class="premium-modal">
+    <div class="premium-modal-content">
+        <h2>Privacy Policy</h2>
+        <div style="text-align:left; max-height:50vh; overflow-y:auto; color:var(--text); font-size:14px; line-height:1.6; margin-bottom:20px; padding:0 4px;">
+            <p><strong>Effective Date:</strong> 02/08/2026</p>
+            <p>This application does not collect, use, store, or share any personal data or personally identifiable information (PII) from users.</p>
+            <p>No data is transmitted to external servers. All user content (drawings, settings, preferences, and drafts) is stored <strong>locally</strong> on your device only.</p>
+            <p>We do not use cookies, analytics, or tracking mechanisms.</p>
+            <p>By using this application, you accept this policy. If you have questions, contact us via the support email provided in the Microsoft Store listing.</p>
+        </div>
+        <button id="closePrivacyBtn" class="cancel-btn" style="width:100%;">Close</button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const privacyModal = document.getElementById('privacyModal');
+    const closePrivacyBtn = document.getElementById('closePrivacyBtn');
+    const topbar = document.querySelector('.topbar');
+    if (topbar && !document.getElementById('privacyBtn')) {
+        const privacyBtn = document.createElement('button');
+        privacyBtn.id = 'privacyBtn';
+        privacyBtn.style.cssText = 'background:transparent; border:none; color:#b0b0b0; font-size:12px; padding:0 10px; cursor:pointer;';
+        privacyBtn.textContent = '🔒 Privacy';
+        topbar.appendChild(privacyBtn);
+        privacyBtn.addEventListener('click', () => privacyModal.classList.add('active'));
+    }
+    if (closePrivacyBtn) closePrivacyBtn.addEventListener('click', () => privacyModal.classList.remove('active'));
+    privacyModal.addEventListener('click', (e) => { if (e.target === privacyModal) privacyModal.classList.remove('active'); });
+});
+</script>
 </body>
 </html>
