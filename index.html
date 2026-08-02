@@ -326,14 +326,15 @@
             backdrop-filter: blur(10px);
             padding: 10px 16px;
             border-radius: 30px;
-            z-index: 30;
             max-width: calc(100vw - 30px);
             overflow-x: auto;
             white-space: nowrap;
             -webkit-overflow-scrolling: touch;
+            /* FIXED: Force it to appear on top */
+            z-index: 9999 !important;
         }
         .controls-bar.visible {
-            display: flex;
+            display: flex !important;
         }
         .controls-bar label {
             color: var(--text);
@@ -458,7 +459,7 @@
             display: none;
         }
 
-        /* --- Custom Message Modal (replaces alert) --- */
+        /* --- Message Modal (replaces alert) --- */
         #messageModal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -497,6 +498,59 @@
             font-weight: 600;
             cursor: pointer;
             margin: 0 auto;
+        }
+
+        /* --- Confirm Modal (replaces confirm) --- */
+        #confirmModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+        #confirmModal.active {
+            display: flex;
+        }
+        #confirmModal .modal-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+        #confirmModal .modal-content p {
+            color: var(--text);
+            font-size: 15px;
+            line-height: 1.5;
+            margin: 0 0 20px 0;
+        }
+        #confirmModal .modal-content .btn-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        #confirmModal .modal-content .btn-row button {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+        }
+        #confirmModal .modal-content .btn-row .btn-yes {
+            background: var(--accent2);
+            border: none;
+            color: #000;
+        }
+        #confirmModal .modal-content .btn-row .btn-no {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
         }
 
         /* --- Premium Modal --- */
@@ -559,7 +613,6 @@
             <input type="file" id="uploadInput" accept="image/*, .svg, .pdf" />
             <button id="downloadBtn">⬇️ Download</button>
             <button id="toggle3D" class="accent">🌐 3D / 360°</button>
-            <!-- NEW: Unlock Premium button -->
             <button id="unlockPremiumBtn" style="background: var(--accent); border-color: var(--accent); color: #fff; font-weight:600;">🔓 Unlock Premium</button>
         </div>
 
@@ -726,6 +779,17 @@
         </div>
     </div>
 
+    <!-- Confirm Modal (replaces confirm) -->
+    <div id="confirmModal">
+        <div class="modal-content">
+            <p id="confirmModalText">Confirm?</p>
+            <div class="btn-row">
+                <button id="confirmYes" class="btn-yes">OK</button>
+                <button id="confirmNo" class="btn-no">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Premium Modal -->
     <div id="premiumModal">
         <div class="premium-content">
@@ -802,6 +866,39 @@
         const fullscreenCanvas = document.getElementById('fullscreenCanvas');
         const fullscreenCtx = fullscreenCanvas.getContext('2d');
 
+        // ========== MODALS ==========
+        const messageModal = document.getElementById('messageModal');
+        const messageModalText = document.getElementById('messageModalText');
+        const messageModalOk = document.getElementById('messageModalOk');
+
+        function showMessage(text) {
+            messageModalText.textContent = text;
+            messageModal.classList.add('active');
+        }
+        messageModalOk.addEventListener('click', () => {
+            messageModal.classList.remove('active');
+        });
+
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmModalText = document.getElementById('confirmModalText');
+        const confirmYes = document.getElementById('confirmYes');
+        const confirmNo = document.getElementById('confirmNo');
+        let confirmCallback = null;
+
+        function showConfirm(text, callback) {
+            confirmModalText.textContent = text;
+            confirmCallback = callback;
+            confirmModal.classList.add('active');
+        }
+        confirmYes.addEventListener('click', () => {
+            confirmModal.classList.remove('active');
+            if (typeof confirmCallback === 'function') confirmCallback(true);
+        });
+        confirmNo.addEventListener('click', () => {
+            confirmModal.classList.remove('active');
+            if (typeof confirmCallback === 'function') confirmCallback(false);
+        });
+
         // ========== Assistant elements ==========
         const assistantTextInput = document.getElementById('assistantTextInput');
         const assistantFontSelect = document.getElementById('assistantFontSelect');
@@ -849,20 +946,6 @@
             "Duplicate a layer before making major changes as a backup."
         ];
         let usedTips = [];
-
-        // ========== MESSAGE MODAL (replaces alert) ==========
-        const messageModal = document.getElementById('messageModal');
-        const messageModalText = document.getElementById('messageModalText');
-        const messageModalOk = document.getElementById('messageModalOk');
-
-        function showMessage(text) {
-            messageModalText.textContent = text;
-            messageModal.classList.add('active');
-        }
-
-        messageModalOk.addEventListener('click', () => {
-            messageModal.classList.remove('active');
-        });
 
         // ========== PREMIUM SYSTEM ==========
         const premiumModal = document.getElementById('premiumModal');
@@ -1952,7 +2035,11 @@
                 undo(); } else if (e.ctrlKey && e.key === 'y') { e.preventDefault();
                 redo(); }
         });
-        document.getElementById('newBtn').addEventListener('click', () => { if (confirm('New canvas?')) newCanvas(); });
+        document.getElementById('newBtn').addEventListener('click', () => {
+            showConfirm('New canvas?', (confirmed) => {
+                if (confirmed) newCanvas();
+            });
+        });
 
         document.getElementById('saveDraftBtn').addEventListener('click', () => {
             localStorage.setItem('procreate_draft', JSON.stringify(layers.map(l => l.canvas.toDataURL())));
