@@ -2244,8 +2244,45 @@
         console.log('✅ Procreate+ Studio fully repaired and ready.');
     </script>
     
+
+
+
+    <!-- CSS to force the modal to cover the whole screen -->
+<style>
+    #privacyModal {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: rgba(0, 0, 0, 0.85) !important;
+        z-index: 99999 !important;
+        display: none !important;
+        align-items: center !important;
+        justify-content: center !important;
+        backdrop-filter: blur(4px) !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    #privacyModal.active {
+        display: flex !important;
+    }
+    #privacyModal .premium-modal-content {
+        background: var(--surface, #1e1e1e);
+        border: 1px solid var(--border, #3a3a3c);
+        border-radius: var(--radius, 16px);
+        padding: 30px;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        position: relative;
+        z-index: 100000;
+    }
+</style>
+
 <!-- Privacy Policy Modal -->
-<div id="privacyModal" class="premium-modal">
+<div id="privacyModal">
     <div class="premium-modal-content">
         <h2 style="color:var(--accent2);">Privacy Policy</h2>
         <div style="text-align:left; max-height:50vh; overflow-y:auto; color:var(--text); font-size:14px; line-height:1.6; margin-bottom:20px; padding:0 4px;">
@@ -2253,49 +2290,28 @@
             <p>This application does not collect, use, store, or share any personal data or personally identifiable information (PII) from users.</p>
             <p>No data is transmitted to external servers. All user content (drawings, settings, preferences, and drafts) is stored <strong>locally</strong> on your device only.</p>
             <p>We do not use cookies, analytics, or tracking mechanisms.</p>
-            <p>By using this application, you accept this policy. If you have questions, contact us via the support email provided in the Microsoft Store listing.</p>
+            <p>By using this application, you accept this policy.</p>
         </div>
-        <button id="closePrivacyBtn" class="cancel-btn" style="width:100%;">Close</button>
+        <!-- Clicking this button closes the modal immediately -->
+        <button onclick="document.getElementById('privacyModal').classList.remove('active');" class="cancel-btn" style="width:100%;">Close</button>
     </div>
 </div>
 
+<!-- Script to add the "Privacy Policy" button after the Premium button -->
 <script>
 (function() {
-    // Get elements
-    const privacyModal = document.getElementById('privacyModal');
-    const closePrivacyBtn = document.getElementById('closePrivacyBtn');
     const unlockPremiumBtn = document.getElementById('unlockPremiumBtn');
     const topbar = document.querySelector('.topbar');
-
-    // Add "Privacy Policy" button after the "Premium" button
     if (unlockPremiumBtn && topbar && !document.getElementById('privacyPolicyBtn')) {
         const privacyBtn = document.createElement('button');
         privacyBtn.id = 'privacyPolicyBtn';
         privacyBtn.textContent = 'Privacy Policy';
         privacyBtn.style.cssText = 'background:transparent; border:none; color:#b0b0b0; font-size:12px; padding:0 10px; flex-shrink:0; cursor:pointer;';
-        
-        // Insert after the Premium button
+        // Insert the button right after the Premium button
         unlockPremiumBtn.insertAdjacentElement('afterend', privacyBtn);
-        
-        // Open modal on click
+        // Show modal when clicked
         privacyBtn.addEventListener('click', function() {
-            privacyModal.classList.add('active');
-        });
-    }
-
-    // Close modal handlers
-    if (closePrivacyBtn) {
-        closePrivacyBtn.addEventListener('click', function() {
-            privacyModal.classList.remove('active');
-        });
-    }
-    
-    // Close when clicking on the dark background (outside the white box)
-    if (privacyModal) {
-        privacyModal.addEventListener('click', function(e) {
-            if (e.target === privacyModal) {
-                privacyModal.classList.remove('active');
-            }
+            document.getElementById('privacyModal').classList.add('active');
         });
     }
 })();
