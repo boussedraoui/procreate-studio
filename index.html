@@ -463,7 +463,7 @@
             display: none;
         }
 
-        /* --- Premium Modal Styles (ADDED) --- */
+        /* --- Premium Modal Styles --- */
         .premium-modal {
             position: fixed;
             top: 0;
@@ -536,7 +536,6 @@
             <input type="file" id="uploadInput" accept="image/*, .svg, .pdf" />
             <button id="downloadBtn">⬇️ Download</button>
             <button id="toggle3D" class="accent">🌐 3D / 360°</button>
-            <!-- NEW: Premium Unlock Button -->
             <button id="unlockPremiumBtn" style="background: var(--accent); border-color: var(--accent); color: #fff; font-weight:600;">🔓 Unlock Premium</button>
         </div>
 
@@ -695,11 +694,11 @@
         <button id="exitFullscreenBtn" style="position:absolute; top:10px; right:10px; background:#2a2a2e; color:white; border:none; padding:8px 16px; border-radius:12px; cursor:pointer;">✕ Exit Fullscreen</button>
     </div>
 
-    <!-- NEW: Premium Modal -->
+    <!-- Premium Modal -->
     <div id="premiumModal" class="premium-modal">
         <div class="premium-modal-content">
             <h2>🔓 Unlock Premium</h2>
-            <p>This feature is available only with a Premium subscription. Get full access to Assistant, 3D, Recording, and more for just <strong>$5.99 / month</strong>.</p>
+            <p id="premiumModalText">This feature is available only with a Premium subscription. Get full access to Assistant, 3D, Recording, and more for just <strong>$5.99 / month</strong>.</p>
             <button id="premiumPurchaseBtn" style="background: var(--accent2); border-color: var(--accent2); color: #000; font-weight: bold;">Subscribe Now</button>
             <button class="cancel-btn" id="premiumCancelBtn">Maybe later</button>
         </div>
@@ -819,28 +818,23 @@
         ];
         let usedTips = [];
 
-        // ========== Premium features lock (ADDED) ==========
+        // ========== Premium features lock ==========
         const premiumModal = document.getElementById('premiumModal');
+        const premiumModalText = document.getElementById('premiumModalText');
         const unlockPremiumBtn = document.getElementById('unlockPremiumBtn');
         const premiumPurchaseBtn = document.getElementById('premiumPurchaseBtn');
         const premiumCancelBtn = document.getElementById('premiumCancelBtn');
-        const storeProductId = '9PMJWQWFVSH7'; // Your subscription Store ID
+        const storeProductId = '9PMJWQWFVSH7';
 
-        let isPremium = false; // will be set from localStorage
-        let pendingLockedAction = null; // store which action to unlock after purchase
+        let isPremium = false;
+        let pendingLockedAction = null;
 
-        // Check premium status
         function checkPremium() {
             const stored = localStorage.getItem('procreate_premium');
             if (stored === 'true') {
                 isPremium = true;
                 updatePremiumUI();
                 return true;
-            }
-            // Optionally verify with Store API (only in Windows Store context)
-            if (window.Windows && Windows.Services.Store) {
-                // We can attempt to verify license, but we'll keep it simple for now
-                // For a real app, you'd call getStoreProductForCurrentAppAsync
             }
             return false;
         }
@@ -862,27 +856,25 @@
             }
         }
 
-        // Show modal and store the action that triggered it
         function requirePremium(actionCallback) {
             if (isPremium) {
                 if (typeof actionCallback === 'function') actionCallback();
                 return;
             }
 
-            // Check if we are in a real Windows Store context
             if (window.Windows && Windows.Services.Store) {
                 pendingLockedAction = actionCallback;
+                premiumModalText.textContent = "This feature is available only with a Premium subscription. Get full access to Assistant, 3D, Recording, and more for just $5.99 / month.";
                 premiumModal.classList.add('active');
             } else {
-                // If user is on a web browser, block access immediately
-                alert('⚠️ This feature is locked. Please purchase the app from the Microsoft Store to unlock Premium.');
+                // NO ALERT. Show the modal with the lock message.
+                premiumModalText.textContent = "⚠️ This feature is locked. Please purchase the app from the Microsoft Store to unlock Premium.";
+                premiumModal.classList.add('active');
             }
         }
 
-        // Purchase function
         async function purchasePremium() {
             try {
-                // Check if running in Windows Store context
                 if (window.Windows && Windows.Services.Store) {
                     const context = Windows.Services.Store.StoreContext.getForCurrentView();
                     const result = await context.requestPurchaseAsync(storeProductId);
@@ -894,25 +886,29 @@
                         }
                         premiumModal.classList.remove('active');
                     } else {
-                        alert('Purchase was not completed. Please try again.');
+                        premiumModalText.textContent = "Purchase was not completed. Please try again.";
+                        premiumModal.classList.add('active');
                     }
                 } else {
-                    // WEB BROWSER FALLBACK - DO NOT GIVE PREMIUM FOR FREE
-                    alert('⚠️ Premium features are only available in the official Microsoft Store app. Please download and purchase the app from the Microsoft Store to unlock all features.');
-                    return; // We explicitly block the unlock here.
+                    // NO ALERT. Block without showing site name.
+                    premiumModalText.textContent = "⚠️ Premium features are only available in the official Microsoft Store app. Please download and purchase the app from the Microsoft Store to unlock all features.";
+                    premiumModal.classList.add('active');
+                    return;
                 }
             } catch (error) {
                 console.error('Purchase error:', error);
-                alert('An error occurred during purchase: ' + error.message);
+                premiumModalText.textContent = "An error occurred during purchase: " + error.message;
+                premiumModal.classList.add('active');
             }
         }
 
-        // Event listeners for premium modal
         unlockPremiumBtn.addEventListener('click', () => {
             if (isPremium) {
-                alert('You already have Premium!');
+                premiumModalText.textContent = "You already have Premium!";
+                premiumModal.classList.add('active');
                 return;
             }
+            premiumModalText.textContent = "This feature is available only with a Premium subscription. Get full access to Assistant, 3D, Recording, and more for just $5.99 / month.";
             premiumModal.classList.add('active');
         });
 
@@ -923,50 +919,37 @@
             pendingLockedAction = null;
         });
 
-        // Override assistant dropdown open to require premium
-        const originalAssistantClick = assistantBtn.click; // backup, not needed
         assistantBtn.addEventListener('click', (e) => {
-            // Only block if not premium
             if (!isPremium) {
                 e.stopPropagation();
                 requirePremium(() => {
-                    // Actually open the dropdown after purchase
                     assistantDropdown.classList.add('open');
                 });
                 return;
             }
-            // If premium, behave normally (but we need to prevent the existing handler from firing twice)
-            // We'll override the existing handler later
         });
 
-        // Override 3D toggle
         toggle3DBtn.addEventListener('click', (e) => {
             if (!isPremium) {
                 e.stopPropagation();
                 requirePremium(() => {
-                    // Actually enable 3D after purchase
                     if (is3D) disable3D();
                     else enable3D();
                 });
                 return;
             }
-            // If premium, allow normal toggle (but we need to avoid duplicate handlers)
         });
 
-        // Override record button
         document.getElementById('recordBtn').addEventListener('click', (e) => {
             if (!isPremium) {
                 e.stopPropagation();
                 requirePremium(() => {
-                    // Actually start recording after purchase
-                    recordBtn.click(); // simulate original click
+                    recordBtn.click();
                 });
                 return;
             }
         });
 
-        // Override save/load/upload/download (optional – we can leave them free or lock)
-        // We'll lock save/load/upload/download as they are "extra"
         const premiumExtraFeatures = [
             'saveDraftBtn', 'loadDraftBtn', 'uploadBtn', 'downloadBtn'
         ];
@@ -977,7 +960,6 @@
                     if (!isPremium) {
                         e.stopPropagation();
                         requirePremium(() => {
-                            // Re-trigger the click after unlock
                             el.click();
                         });
                     }
@@ -985,118 +967,21 @@
             }
         });
 
-        // Also lock fullscreen? we keep it free for now.
-
-        // We need to patch the existing handlers that we just overrode.
-        // To avoid double handling, we'll use a flag or we can remove the original listeners?
-        // The easiest way: we wrap the original event handlers with a premium check.
-        // But since we already added new listeners, we must prevent the original ones from firing when premium check fails.
-        // We'll use a strategy: store original listeners and only call them if premium.
-        // Since the original handlers are already attached, we can't easily remove them.
-        // Instead, we'll change the original functions to check premium before executing.
-        // We'll patch the original functions by overriding them.
-
-        // ----- Patching original functions -----
-        // 1. assistantBtn click: we'll modify the original event handler.
-        // Since original is defined earlier in the script (in the module), we can't modify it directly.
-        // We'll create a new handler that calls the original only if premium.
-        // We'll store the original handler and replace it.
-
-        // We'll attach a new listener that runs before the original and can prevent it.
-        // We'll use capturing phase or stopImmediatePropagation.
-        // Simpler: we'll override the original click by removing all listeners and adding our own.
-        // But we don't have access to the original listener function.
-        // Instead, we'll hijack the click event using a higher priority listener.
-        // Use a capturing phase listener that stops propagation if not premium.
-
-        function addPremiumGuard(element, action) {
-            // We'll add a capturing phase listener
-            element.addEventListener('click', function(e) {
-                if (!isPremium) {
-                    e.stopImmediatePropagation();
-                    requirePremium(action);
-                }
-            }, true); // capturing phase
-        }
-
-        // Apply guards to premium features
-        addPremiumGuard(assistantBtn, () => {
-            assistantDropdown.classList.add('open');
-        });
-        addPremiumGuard(toggle3DBtn, () => {
-            if (is3D) disable3D();
-            else enable3D();
-        });
-        addPremiumGuard(document.getElementById('recordBtn'), () => {
-            // This will be overridden by the original handler; we'll just call the original via a flag
-            // Actually we can just let the original run after we unlock.
-            // But we need to ensure it doesn't run before.
-            // We'll use a flag to indicate that the guard has allowed it.
-            // Simpler: we'll let the original handler run, but we disable it until premium.
-            // Because we already have a separate listener that prevents default, the original won't fire.
-            // But we added our own listener that stops propagation, so original won't fire.
-            // So we need to manually trigger the original action when premium.
-            // We'll store a reference to the original function? Not possible.
-            // Alternatively, we can override the original event listener by removing all listeners and re-adding our own.
-            // This is complex.
-            // Since this is a practical solution, we'll instead modify the existing event handlers by wrapping them.
-            // We'll use a more robust method: after the original script runs, we will replace the event listeners.
-
-            // We'll do a simple approach: we'll override the original functions directly.
-            // We'll save the original functions and replace them.
-        });
-
-        // To keep it clean, we'll not use addPremiumGuard but directly override the existing event handlers by grabbing them? 
-        // Not possible easily.
-
-        // We'll use a different strategy: we'll set a flag `_premiumGuard` and in the original event handlers we check it.
-        // But we cannot modify the original code.
-
-        // Given the complexity and the requirement to not delete anything, we'll adopt a pragmatic solution:
-        // We'll add a high-priority event listener that will intercept the click and if not premium, it will show modal and stop propagation.
-        // This is what addPremiumGuard does (capturing phase). 
-        // However, the original listener is in bubbling phase, so capturing phase will run first and can stop propagation.
-
-        // So for each premium feature, we add a capturing phase listener that checks premium and stops propagation if not.
-        // If premium, we do nothing and let the original listener run.
-
-        // Let's implement that for all premium features.
-
-        function guardPremiumFeature(elementId, onPremiumAction) {
+        function guardPremium(elementId, actionKey) {
             const el = document.getElementById(elementId);
             if (!el) return;
             el.addEventListener('click', function(e) {
                 if (!isPremium) {
                     e.stopImmediatePropagation();
-                    requirePremium(() => {
-                        // After purchase, we need to re-trigger the click with premium status true
-                        // But we can't simply trigger because the guard will still block.
-                        // Instead, we set a flag and manually execute the action.
-                        // We'll store the desired action in pendingLockedAction and after purchase we execute it.
-                        // In requirePremium, we store the action and call it after purchase.
-                        // So we need to pass the action that triggers the feature.
-                        // For now, we'll just pass the action to be executed after purchase.
-                        // In the guard, we call requirePremium with the action that directly triggers the feature.
-                        // The action should be the code that would normally run.
-                        // We'll define those actions.
-                    });
-                    // We'll handle the action in the guard itself.
+                    requirePremium(actionKey);
                 }
             }, true);
         }
 
-        // But we need the action to be the actual feature trigger.
-        // For assistant: open dropdown.
-        // For 3D: toggle.
-        // For record: trigger record.
-        // For save/load/etc: trigger them.
-
-        // We'll refactor: we'll define the actions and pass them to guardPremiumFeature.
-
         const premiumActions = {
             assistant: () => { assistantDropdown.classList.add('open'); },
             toggle3D: () => { if (is3D) disable3D(); else enable3D(); },
-            record: () => { recordBtn.click(); }, // we'll let the original click run after purchase
+            record: () => { recordBtn.click(); },
             saveDraft: () => { document.getElementById('saveDraftBtn').click(); },
             loadDraft: () => { document.getElementById('loadDraftBtn').click(); },
             upload: () => { document.getElementById('uploadBtn').click(); },
@@ -1110,14 +995,12 @@
                 if (!isPremium) {
                     e.stopImmediatePropagation();
                     requirePremium(() => {
-                        // Execute the action after purchase
                         premiumActions[actionKey]();
                     });
                 }
             }, true);
         }
 
-        // Apply guards
         guardPremium('assistantBtn', 'assistant');
         guardPremium('toggle3D', 'toggle3D');
         guardPremium('recordBtn', 'record');
@@ -1126,13 +1009,7 @@
         guardPremium('uploadBtn', 'upload');
         guardPremium('downloadBtn', 'download');
 
-        // Also lock the Assistant dropdown content? The dropdown itself is only opened via button, so it's fine.
-        // Also lock 3D controls? They are only accessible after enabling 3D, so it's fine.
-
-        // Initialize premium status
         checkPremium();
-
-        // End of premium section =============================================
 
         // ========== Position helpers ==========
         function getPosition(px, py) {
@@ -1154,7 +1031,6 @@
             return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
         }
 
-        // ========== Composite (FIXED: single unified function) ==========
         function compositeLayers() {
             ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
             layers.forEach(l => {
@@ -1162,14 +1038,12 @@
             });
             if (is3D && texture3D) texture3D.needsUpdate = true;
             if (isFullscreen) compositeLayersToFullscreen();
-            // Auto-save with debounce
             clearTimeout(window._autoSaveTimeout);
             if (layers.length > 0) {
                 window._autoSaveTimeout = setTimeout(() => saveAutoSnapshot(), 200);
             }
         }
 
-        // ========== Fullscreen ==========
         function compositeLayersToFullscreen() {
             if (!isFullscreen) return;
             fullscreenCtx.clearRect(0, 0, fullscreenCanvas.width, fullscreenCanvas.height);
@@ -1180,22 +1054,19 @@
             const rect = fullscreenCanvas.getBoundingClientRect();
             const fx = (clientX - rect.left) / rect.width * fullscreenCanvas.width;
             const fy = (clientY - rect.top) / rect.height * fullscreenCanvas.height;
-            return { x: fx * (mainCanvas.width / fullscreenCanvas.width), y: fy * (mainCanvas.height / fullscreenCanvas
-                    .height) };
+            return { x: fx * (mainCanvas.width / fullscreenCanvas.width), y: fy * (mainCanvas.height / fullscreenCanvas.height) };
         }
 
         function fsStart(e) {
             e.preventDefault();
-            const { x, y } = mapFullscreenCoords(e.touches ? e.touches[0].clientX : e.clientX, e.touches ? e.touches[0]
-                .clientY : e.clientY);
+            const { x, y } = mapFullscreenCoords(e.touches ? e.touches[0].clientX : e.clientX, e.touches ? e.touches[0].clientY : e.clientY);
             startDrawAt(x, y);
         }
 
         function fsMove(e) {
             if (!isDrawing) return;
             e.preventDefault();
-            const { x, y } = mapFullscreenCoords(e.touches ? e.touches[0].clientX : e.clientX, e.touches ? e.touches[0]
-                .clientY : e.clientY);
+            const { x, y } = mapFullscreenCoords(e.touches ? e.touches[0].clientX : e.clientX, e.touches ? e.touches[0].clientY : e.clientY);
             drawAt(x, y);
         }
 
@@ -1234,14 +1105,12 @@
         document.getElementById('fullscreenBtn').addEventListener('click', enterFullscreen);
         document.getElementById('exitFullscreenBtn').addEventListener('click', exitFullscreen);
 
-        // ========== Layers ==========
         function createLayerCanvas(w, h, fillWhite = false) {
             const c = document.createElement('canvas');
             c.width = w;
             c.height = h;
             const cctx = c.getContext('2d');
-            if (fillWhite) { cctx.fillStyle = '#ffffff';
-                cctx.fillRect(0, 0, w, h); }
+            if (fillWhite) { cctx.fillStyle = '#ffffff'; cctx.fillRect(0, 0, w, h); }
             return c;
         }
 
@@ -1286,7 +1155,6 @@
             if (activeLayerIndex >= layers.length) activeLayerIndex = layers.length - 1;
         }
 
-        // ========== Undo / Redo (FIXED: no overwriting) ==========
         function undo() {
             if (undoStack.length <= 1) return;
             redoStack.push(undoStack.pop());
@@ -1333,7 +1201,6 @@
             return layers[activeLayerIndex]?.canvas;
         }
 
-        // ========== Tools ==========
         function setActiveTool(tool) {
             currentTool = tool;
             toolItems.forEach(item => item.classList.remove('active'));
@@ -1373,7 +1240,6 @@
             pctx.globalAlpha = 1;
         }
 
-        // ========== Drawing core (FIXED: eyedropper uses startX/startY) ==========
         function startDrawAt(x, y) {
             isDrawing = true;
             startX = x;
@@ -1476,7 +1342,6 @@
             endDrawAt();
         }
 
-        // 2D events
         mainCanvas.addEventListener('mousedown', startDraw);
         mainCanvas.addEventListener('mousemove', draw);
         mainCanvas.addEventListener('mouseup', endDraw);
@@ -1486,7 +1351,6 @@
         mainCanvas.addEventListener('touchend', endDraw);
         mainCanvas.addEventListener('touchcancel', endDraw);
 
-        // ========== Eyedropper / Flood fill ==========
         function pickColor(x, y) {
             x = Math.min(Math.max(0, x), mainCanvas.width - 1);
             y = Math.min(Math.max(0, y), mainCanvas.height - 1);
@@ -1535,7 +1399,6 @@
             lctx.putImageData(imageData, 0, 0);
         }
 
-        // ========== 3D Mode (FIXED: event management) ==========
         function init3D() {
             renderer3D = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer3D.setPixelRatio(window.devicePixelRatio);
@@ -1559,7 +1422,6 @@
             const dir = new THREE.DirectionalLight(0xffffff, 0.5);
             dir.position.set(1, 1, 1);
             scene3D.add(dir);
-            // Add 3D drawing events
             renderer3D.domElement.addEventListener('mousedown', startDraw3D);
             renderer3D.domElement.addEventListener('mousemove', draw3D);
             renderer3D.domElement.addEventListener('mouseup', endDraw3D);
@@ -1595,7 +1457,6 @@
             if (texture3D) texture3D.needsUpdate = true;
         }
 
-        // 3D drawing proxies (FIXED: proper touch handling)
         function startDraw3D(e) {
             if (!is3D || (currentTool !== 'brush' && currentTool !== 'eraser')) return;
             e.preventDefault();
@@ -1665,7 +1526,6 @@
                 camera3D.updateProjectionMatrix();
                 texture3D.needsUpdate = true;
                 remove3DListeners();
-                // re-add listeners
                 const el = renderer3D.domElement;
                 el.addEventListener('mousedown', startDraw3D);
                 el.addEventListener('mousemove', draw3D);
@@ -1696,7 +1556,6 @@
             else enable3D();
         });
 
-        // 3D controls
         document.getElementById('autoRotateBtn').addEventListener('click', () => {
             autoRotate = !autoRotate;
             if (controls3D) controls3D.autoRotate = autoRotate;
@@ -1713,11 +1572,9 @@
             document.getElementById('wireframeBtn').style.background = wireframeMode ? 'var(--accent2)' : 'var(--surface2)';
         });
         document.getElementById('resetViewBtn').addEventListener('click', () => {
-            if (controls3D) { controls3D.reset();
-                camera3D.position.set(0, 0, 5); }
+            if (controls3D) { controls3D.reset(); camera3D.position.set(0, 0, 5); }
         });
 
-        // ========== Canvas resize (FIXED: preserve content) ==========
         function resizeCanvas() {
             const w = container.clientWidth;
             const h = container.clientHeight;
@@ -1757,7 +1614,6 @@
         window.addEventListener('resize', resizeCanvas);
         window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 50));
 
-        // ========== Upload ==========
         document.getElementById('uploadBtn').addEventListener('click', () => document.getElementById('uploadInput').click());
         document.getElementById('uploadInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -1772,8 +1628,7 @@
                         const lc = createLayerCanvas(w, h, false);
                         const lctx = lc.getContext('2d');
                         const scale = Math.min(w / img.width, h / img.height, 1);
-                        lctx.drawImage(img, (w - img.width * scale) / 2, (h - img.height * scale) / 2, img.width *
-                            scale, img.height * scale);
+                        lctx.drawImage(img, (w - img.width * scale) / 2, (h - img.height * scale) / 2, img.width * scale, img.height * scale);
                         saveSnapshot();
                         layers.push({ canvas: lc, name: 'Imported', visible: true });
                         activeLayerIndex = layers.length - 1;
@@ -1789,8 +1644,7 @@
                     const s = document.createElement('script');
                     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
                     s.onload = () => {
-                        pdfjsLib.GlobalWorkerOptions.workerSrc =
-                            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+                        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
                         loadPDF(file);
                     };
                     document.head.appendChild(s);
@@ -1814,8 +1668,7 @@
                             const lc = createLayerCanvas(w, h, false);
                             const lctx = lc.getContext('2d');
                             const scale = Math.min(w / img.width, h / img.height, 1);
-                            lctx.drawImage(img, (w - img.width * scale) / 2, (h - img.height * scale) / 2, img
-                                .width * scale, img.height * scale);
+                            lctx.drawImage(img, (w - img.width * scale) / 2, (h - img.height * scale) / 2, img.width * scale, img.height * scale);
                             saveSnapshot();
                             layers.push({ canvas: lc, name: 'PDF', visible: true });
                             activeLayerIndex = layers.length - 1;
@@ -1829,7 +1682,6 @@
             fr.readAsArrayBuffer(file);
         }
 
-        // ========== Assistant Dropdown ==========
         assistantBtn.addEventListener('click', () => {
             const rect = assistantBtn.getBoundingClientRect();
             assistantDropdown.style.top = (rect.bottom + 4) + 'px';
@@ -1838,25 +1690,17 @@
         });
         closeAssistantDropdown.addEventListener('click', () => assistantDropdown.classList.remove('open'));
 
-        // Text formatting
-        assistantBoldBtn.addEventListener('click', () => { textBold = !textBold;
-            assistantBoldBtn.classList.toggle('active', textBold); });
-        assistantItalicBtn.addEventListener('click', () => { textItalic = !textItalic;
-            assistantItalicBtn.classList.toggle('active', textItalic); });
-        assistantUnderlineBtn.addEventListener('click', () => { textUnderline = !textUnderline;
-            assistantUnderlineBtn.classList.toggle('active', textUnderline); });
-        assistantTextSize.addEventListener('input', () => assistantTextSizeValue.textContent = assistantTextSize.value +
-        'px');
+        assistantBoldBtn.addEventListener('click', () => { textBold = !textBold; assistantBoldBtn.classList.toggle('active', textBold); });
+        assistantItalicBtn.addEventListener('click', () => { textItalic = !textItalic; assistantItalicBtn.classList.toggle('active', textItalic); });
+        assistantUnderlineBtn.addEventListener('click', () => { textUnderline = !textUnderline; assistantUnderlineBtn.classList.toggle('active', textUnderline); });
+        assistantTextSize.addEventListener('input', () => assistantTextSizeValue.textContent = assistantTextSize.value + 'px');
 
-        // Text position
         document.querySelectorAll('#textPositionGrid .pos-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('#textPositionGrid .pos-btn').forEach(b => b.classList.remove(
-                'active'));
+                document.querySelectorAll('#textPositionGrid .pos-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 const pos = btn.dataset.pos;
-                const map = { tl: [10, 10], tc: [50, 10], tr: [90, 10], ml: [10, 50], mc: [50, 50], mr: [90, 50],
-                    bl: [10, 90], bc: [50, 90], br: [90, 90] };
+                const map = { tl: [10, 10], tc: [50, 10], tr: [90, 10], ml: [10, 50], mc: [50, 50], mr: [90, 50], bl: [10, 90], bc: [50, 90], br: [90, 90] };
                 textPosX = map[pos][0];
                 textPosY = map[pos][1];
                 document.getElementById('textPosX').value = textPosX;
@@ -1874,7 +1718,6 @@
             document.getElementById('textPosYVal').textContent = textPosY + '%';
         });
 
-        // Place text
         placeTextBtn.addEventListener('click', () => {
             const text = assistantTextInput.value.trim();
             if (!text) return;
@@ -1906,7 +1749,6 @@
             assistantTextInput.value = '';
         });
 
-        // Shape selection
         document.querySelectorAll('#shapeGrid .shape-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('#shapeGrid .shape-btn').forEach(b => b.classList.remove('active'));
@@ -1917,15 +1759,12 @@
         assistantShapeW.addEventListener('input', () => assistantShapeWVal.textContent = assistantShapeW.value);
         assistantShapeH.addEventListener('input', () => assistantShapeHVal.textContent = assistantShapeH.value);
 
-        // Shape position
         document.querySelectorAll('#shapePositionGrid .pos-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('#shapePositionGrid .pos-btn').forEach(b => b.classList.remove(
-                'active'));
+                document.querySelectorAll('#shapePositionGrid .pos-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 const pos = btn.dataset.pos;
-                const map = { tl: [10, 10], tc: [50, 10], tr: [90, 10], ml: [10, 50], mc: [50, 50], mr: [90, 50],
-                    bl: [10, 90], bc: [50, 90], br: [90, 90] };
+                const map = { tl: [10, 10], tc: [50, 10], tr: [90, 10], ml: [10, 50], mc: [50, 50], mr: [90, 50], bl: [10, 90], bc: [50, 90], br: [90, 90] };
                 shapePosX = map[pos][0];
                 shapePosY = map[pos][1];
                 document.getElementById('shapePosX').value = shapePosX;
@@ -1943,7 +1782,6 @@
             document.getElementById('shapePosYVal').textContent = shapePosY + '%';
         });
 
-        // Draw shape
         drawShapeBtn.addEventListener('click', () => {
             const layerCanvas = getActiveLayerCanvas();
             if (!layerCanvas) return;
@@ -1961,125 +1799,45 @@
             lctx.beginPath();
             switch (selectedShape) {
                 case 'square':
-                    lctx.strokeRect(cx - w / 2, cy - h / 2, w, h);
-                    break;
+                    lctx.strokeRect(cx - w / 2, cy - h / 2, w, h); break;
                 case 'rectangle':
-                    lctx.strokeRect(cx - w / 2, cy - h / 2, w, h);
-                    break;
+                    lctx.strokeRect(cx - w / 2, cy - h / 2, w, h); break;
                 case 'triangle':
-                    lctx.moveTo(cx, cy - h / 2);
-                    lctx.lineTo(cx - w / 2, cy + h / 2);
-                    lctx.lineTo(cx + w / 2, cy + h / 2);
-                    lctx.closePath();
-                    lctx.stroke();
-                    break;
+                    lctx.moveTo(cx, cy - h / 2); lctx.lineTo(cx - w / 2, cy + h / 2); lctx.lineTo(cx + w / 2, cy + h / 2); lctx.closePath(); lctx.stroke(); break;
                 case 'circle':
-                    lctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2);
-                    lctx.stroke();
-                    break;
+                    lctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2); lctx.stroke(); break;
                 case 'semicircle':
-                    lctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI);
-                    lctx.closePath();
-                    lctx.stroke();
-                    break;
+                    lctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI); lctx.closePath(); lctx.stroke(); break;
                 case 'ellipse':
-                    lctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2);
-                    lctx.stroke();
-                    break;
+                    lctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2); lctx.stroke(); break;
                 case 'diamond':
-                    lctx.moveTo(cx, cy - h / 2);
-                    lctx.lineTo(cx + w / 2, cy);
-                    lctx.lineTo(cx, cy + h / 2);
-                    lctx.lineTo(cx - w / 2, cy);
-                    lctx.closePath();
-                    lctx.stroke();
-                    break;
+                    lctx.moveTo(cx, cy - h / 2); lctx.lineTo(cx + w / 2, cy); lctx.lineTo(cx, cy + h / 2); lctx.lineTo(cx - w / 2, cy); lctx.closePath(); lctx.stroke(); break;
                 case 'pentagon':
-                    for (let i = 0; i < 5; i++) { const angle = (i * 72 - 90) * Math.PI / 180;
-                        const px = cx + (w / 2) * Math.cos(angle);
-                        const py = cy + (h / 2) * Math.sin(angle);
-                        i === 0 ? lctx.moveTo(px, py) : lctx.lineTo(px, py); }
-                    lctx.closePath();
-                    lctx.stroke();
-                    break;
+                    for (let i = 0; i < 5; i++) { const angle = (i * 72 - 90) * Math.PI / 180; const px = cx + (w / 2) * Math.cos(angle); const py = cy + (h / 2) * Math.sin(angle); i === 0 ? lctx.moveTo(px, py) : lctx.lineTo(px, py); } lctx.closePath(); lctx.stroke(); break;
                 case 'hexagon':
-                    for (let i = 0; i < 6; i++) { const angle = (i * 60) * Math.PI / 180;
-                        const px = cx + (w / 2) * Math.cos(angle);
-                        const py = cy + (h / 2) * Math.sin(angle);
-                        i === 0 ? lctx.moveTo(px, py) : lctx.lineTo(px, py); }
-                    lctx.closePath();
-                    lctx.stroke();
-                    break;
+                    for (let i = 0; i < 6; i++) { const angle = (i * 60) * Math.PI / 180; const px = cx + (w / 2) * Math.cos(angle); const py = cy + (h / 2) * Math.sin(angle); i === 0 ? lctx.moveTo(px, py) : lctx.lineTo(px, py); } lctx.closePath(); lctx.stroke(); break;
                 case 'star':
-                    const spikes = 5,
-                        outerR = w / 2,
-                        innerR = w / 4;
-                    for (let i = 0; i < spikes * 2; i++) { const r = i % 2 === 0 ? outerR : innerR;
-                        const angle = (i * Math.PI / spikes) - Math.PI / 2;
-                        const px = cx + r * Math.cos(angle);
-                        const py = cy + r * Math.sin(angle);
-                        i === 0 ? lctx.moveTo(px, py) : lctx.lineTo(px, py); }
-                    lctx.closePath();
-                    lctx.stroke();
-                    break;
+                    const spikes = 5, outerR = w / 2, innerR = w / 4; for (let i = 0; i < spikes * 2; i++) { const r = i % 2 === 0 ? outerR : innerR; const angle = (i * Math.PI / spikes) - Math.PI / 2; const px = cx + r * Math.cos(angle); const py = cy + r * Math.sin(angle); i === 0 ? lctx.moveTo(px, py) : lctx.lineTo(px, py); } lctx.closePath(); lctx.stroke(); break;
                 case 'arrow':
-                    lctx.moveTo(cx - w / 2, cy);
-                    lctx.lineTo(cx + w / 2, cy);
-                    lctx.moveTo(cx + w / 2, cy);
-                    lctx.lineTo(cx + w / 4, cy - h / 3);
-                    lctx.moveTo(cx + w / 2, cy);
-                    lctx.lineTo(cx + w / 4, cy + h / 3);
-                    lctx.stroke();
-                    break;
+                    lctx.moveTo(cx - w / 2, cy); lctx.lineTo(cx + w / 2, cy); lctx.moveTo(cx + w / 2, cy); lctx.lineTo(cx + w / 4, cy - h / 3); lctx.moveTo(cx + w / 2, cy); lctx.lineTo(cx + w / 4, cy + h / 3); lctx.stroke(); break;
                 case 'cross':
-                    lctx.moveTo(cx - w / 2, cy);
-                    lctx.lineTo(cx + w / 2, cy);
-                    lctx.moveTo(cx, cy - h / 2);
-                    lctx.lineTo(cx, cy + h / 2);
-                    lctx.stroke();
-                    break;
+                    lctx.moveTo(cx - w / 2, cy); lctx.lineTo(cx + w / 2, cy); lctx.moveTo(cx, cy - h / 2); lctx.lineTo(cx, cy + h / 2); lctx.stroke(); break;
                 case 'heart':
-                    lctx.moveTo(cx, cy + h / 2);
-                    lctx.bezierCurveTo(cx - w / 2, cy, cx - w / 2, cy - h / 2, cx, cy - h / 3);
-                    lctx.bezierCurveTo(cx + w / 2, cy - h / 2, cx + w / 2, cy, cx, cy + h / 2);
-                    lctx.stroke();
-                    break;
+                    lctx.moveTo(cx, cy + h / 2); lctx.bezierCurveTo(cx - w / 2, cy, cx - w / 2, cy - h / 2, cx, cy - h / 3); lctx.bezierCurveTo(cx + w / 2, cy - h / 2, cx + w / 2, cy, cx, cy + h / 2); lctx.stroke(); break;
                 case 'trapezoid':
-                    lctx.moveTo(cx - w / 3, cy - h / 2);
-                    lctx.lineTo(cx + w / 3, cy - h / 2);
-                    lctx.lineTo(cx + w / 2, cy + h / 2);
-                    lctx.lineTo(cx - w / 2, cy + h / 2);
-                    lctx.closePath();
-                    lctx.stroke();
-                    break;
+                    lctx.moveTo(cx - w / 3, cy - h / 2); lctx.lineTo(cx + w / 3, cy - h / 2); lctx.lineTo(cx + w / 2, cy + h / 2); lctx.lineTo(cx - w / 2, cy + h / 2); lctx.closePath(); lctx.stroke(); break;
                 case 'diagonal':
-                    lctx.moveTo(cx - w / 2, cy - h / 2);
-                    lctx.lineTo(cx + w / 2, cy + h / 2);
-                    lctx.stroke();
-                    break;
+                    lctx.moveTo(cx - w / 2, cy - h / 2); lctx.lineTo(cx + w / 2, cy + h / 2); lctx.stroke(); break;
                 case 'hline':
-                    lctx.moveTo(cx - w / 2, cy);
-                    lctx.lineTo(cx + w / 2, cy);
-                    lctx.stroke();
-                    break;
+                    lctx.moveTo(cx - w / 2, cy); lctx.lineTo(cx + w / 2, cy); lctx.stroke(); break;
                 case 'vline':
-                    lctx.moveTo(cx, cy - h / 2);
-                    lctx.lineTo(cx, cy + h / 2);
-                    lctx.stroke();
-                    break;
+                    lctx.moveTo(cx, cy - h / 2); lctx.lineTo(cx, cy + h / 2); lctx.stroke(); break;
                 case 'cloud':
-                    const r = w / 4;
-                    lctx.arc(cx - r, cy, r, 0, Math.PI * 2);
-                    lctx.arc(cx + r, cy - r * 0.6, r * 1.2, 0, Math.PI * 2);
-                    lctx.arc(cx + r * 1.8, cy + r * 0.2, r * 0.8, 0, Math.PI * 2);
-                    lctx.arc(cx, cy + r * 0.5, r * 0.9, 0, Math.PI * 2);
-                    lctx.stroke();
-                    break;
+                    const r = w / 4; lctx.arc(cx - r, cy, r, 0, Math.PI * 2); lctx.arc(cx + r, cy - r * 0.6, r * 1.2, 0, Math.PI * 2); lctx.arc(cx + r * 1.8, cy + r * 0.2, r * 0.8, 0, Math.PI * 2); lctx.arc(cx, cy + r * 0.5, r * 0.9, 0, Math.PI * 2); lctx.stroke(); break;
             }
             compositeLayers();
         });
 
-        // Tips
         showTipBtn.addEventListener('click', () => {
             if (usedTips.length === drawingTips.length) usedTips = [];
             let available = drawingTips.filter(t => !usedTips.includes(t));
@@ -2088,18 +1846,14 @@
             tipDisplay.textContent = tip;
         });
 
-        // ========== Back / Settings / Layer actions ==========
         document.getElementById('backBtn').addEventListener('click', () => { undo(); });
-        brushSizeInput.addEventListener('input', () => { brushSize = parseInt(brushSizeInput.value);
-            sizeValue.textContent = brushSize; });
-        brushOpacityInput.addEventListener('input', () => { brushOpacity = parseFloat(brushOpacityInput.value);
-            opacityValue.textContent = Math.round(brushOpacity * 100) + '%'; });
+        brushSizeInput.addEventListener('input', () => { brushSize = parseInt(brushSizeInput.value); sizeValue.textContent = brushSize; });
+        brushOpacityInput.addEventListener('input', () => { brushOpacity = parseFloat(brushOpacityInput.value); opacityValue.textContent = Math.round(brushOpacity * 100) + '%'; });
         colorPicker.addEventListener('input', () => { currentColor = colorPicker.value; });
 
         document.getElementById('addLayerBtn').addEventListener('click', () => {
             saveSnapshot();
-            layers.push({ canvas: createLayerCanvas(mainCanvas.width, mainCanvas.height, true), name: `Layer ${layers.length+1}`,
-                visible: true });
+            layers.push({ canvas: createLayerCanvas(mainCanvas.width, mainCanvas.height, true), name: `Layer ${layers.length+1}`, visible: true });
             activeLayerIndex = layers.length - 1;
             renderLayerList();
             compositeLayers();
@@ -2128,8 +1882,7 @@
             const src = layers[activeLayerIndex].canvas;
             const dup = createLayerCanvas(mainCanvas.width, mainCanvas.height, false);
             dup.getContext('2d').drawImage(src, 0, 0);
-            layers.splice(activeLayerIndex + 1, 0, { canvas: dup, name: `${layers[activeLayerIndex].name} copy`,
-                visible: true });
+            layers.splice(activeLayerIndex + 1, 0, { canvas: dup, name: `${layers[activeLayerIndex].name} copy`, visible: true });
             activeLayerIndex++;
             renderLayerList();
             compositeLayers();
@@ -2137,9 +1890,7 @@
         document.getElementById('layerUndoBtn').addEventListener('click', () => { undo(); });
 
         document.addEventListener('keydown', e => {
-            if (e.ctrlKey && e.key === 'z') { e.preventDefault();
-                undo(); } else if (e.ctrlKey && e.key === 'y') { e.preventDefault();
-                redo(); }
+            if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); } else if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
         });
         document.getElementById('newBtn').addEventListener('click', () => { if (confirm('New canvas?')) newCanvas(); });
 
@@ -2157,8 +1908,7 @@
                 const img = new Image();
                 img.onload = () => {
                     c.getContext('2d').drawImage(img, 0, 0);
-                    if (i === dataURLs.length - 1) { compositeLayers();
-                        renderLayerList(); }
+                    if (i === dataURLs.length - 1) { compositeLayers(); renderLayerList(); }
                 };
                 img.src = d;
                 layers.push({ canvas: c, name: `Layer ${i+1}`, visible: true });
@@ -2170,21 +1920,17 @@
         });
 
         function toggleLeft() { leftPanel.classList.toggle('open'); }
-
         function toggleRight() { rightPanel.classList.toggle('open'); }
         leftToggle.addEventListener('click', toggleLeft);
         rightToggle.addEventListener('click', toggleRight);
 
-        // ========== Download (privacy alert) ==========
         document.getElementById('downloadBtn').addEventListener('click', function() {
-            alert(
-                "We deeply respect your privacy and intellectual property rights.\n\n" +
+            alert("We deeply respect your privacy and intellectual property rights.\n\n" +
                 "To protect your artwork from unauthorized use or theft, we do not store or transmit your images to external servers.\n\n" +
                 "We kindly advise you to take a direct screenshot of your canvas using your device's native screenshot tools. This ensures your creation stays completely on your device and under your full control."
             );
         });
 
-        // ========== Record (FIXED: audio works, preview with controls) ==========
         const recordBtn = document.getElementById('recordBtn');
         let mediaRecorder = null;
         let recordedChunks = [];
@@ -2204,10 +1950,7 @@
 
                 try {
                     const stream = renderer3D.domElement.captureStream(30);
-                    mediaRecorder = new MediaRecorder(stream, {
-                        mimeType: 'video/webm',
-                        videoBitsPerSecond: 500000
-                    });
+                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm', videoBitsPerSecond: 500000 });
 
                     mediaRecorder.ondataavailable = (e) => {
                         if (e.data.size > 0) recordedChunks.push(e.data);
@@ -2230,22 +1973,18 @@
                         videoElem.controls = true;
                         videoElem.autoplay = true;
                         videoElem.muted = false;
-                        videoElem.style.cssText =
-                            `max-width: 100%; max-height: 60%; background: black; border-radius: 12px; object-fit: contain;`;
+                        videoElem.style.cssText = `max-width: 100%; max-height: 60%; background: black; border-radius: 12px; object-fit: contain;`;
                         videoElem.setAttribute('controlsList', 'nodownload');
 
                         const btnContainer = document.createElement('div');
-                        btnContainer.style.cssText =
-                            `margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%; max-width: 340px;`;
+                        btnContainer.style.cssText = `margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%; max-width: 340px;`;
 
                         const downloadBtn = document.createElement('button');
                         downloadBtn.textContent = '📥 Download (Video)';
-                        downloadBtn.style.cssText =
-                            `padding: 12px 20px; background: #4ecdc4; color: #000; border: none; border-radius: 12px; font-size: 15px; cursor: pointer; width: 100%; font-weight: bold;`;
+                        downloadBtn.style.cssText = `padding: 12px 20px; background: #4ecdc4; color: #000; border: none; border-radius: 12px; font-size: 15px; cursor: pointer; width: 100%; font-weight: bold;`;
 
                         downloadBtn.onclick = async () => {
-                            alert(
-                                "Your privacy and copyright are very important to us.\n\n" +
+                            alert("Your privacy and copyright are very important to us.\n\n" +
                                 "We strictly avoid any external cloud uploads to keep your creation safe. Direct downloading from the app is disabled to prevent any risk to your ownership.\n\n" +
                                 "Please use your device's built-in Screen Recorder (found in your Quick Settings dropdown) to record your 3D/360° animation. The video will be saved automatically and securely into your device's Downloads folder, fully preserving your rights."
                             );
@@ -2253,8 +1992,7 @@
 
                         const closeBtn = document.createElement('button');
                         closeBtn.textContent = '✕ Close';
-                        closeBtn.style.cssText =
-                            `padding: 12px 20px; background: #444; color: white; border: none; border-radius: 12px; font-size: 15px; cursor: pointer; width: 100%;`;
+                        closeBtn.style.cssText = `padding: 12px 20px; background: #444; color: white; border: none; border-radius: 12px; font-size: 15px; cursor: pointer; width: 100%;`;
                         closeBtn.onclick = () => {
                             document.body.removeChild(videoModal);
                             URL.revokeObjectURL(videoUrl);
@@ -2278,14 +2016,12 @@
                 isRecording = false;
                 recordBtn.textContent = '🔴 Record';
                 recordBtn.style.background = 'var(--surface2)';
-
                 if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
                 }
             }
         });
 
-        // ========== Auto Save (FIXED: no function overwriting) ==========
         function saveAutoSnapshot() {
             if (layers.length === 0) return;
             try {
@@ -2336,7 +2072,6 @@
             }
         }
 
-        // ========== INITIALIZATION ==========
         resizeCanvas();
         const restored = restoreAutoSnapshot();
         if (!restored) {
