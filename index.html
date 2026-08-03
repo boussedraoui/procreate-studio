@@ -2315,5 +2315,153 @@
     }
 })();
 </script>
+
+
+
+
+
+    <!-- Modal de verrouillage pour le site web -->
+<style>
+    #webLockModal {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85);
+        z-index: 99999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+    }
+    #webLockModal.active {
+        display: flex;
+    }
+    #webLockModal .modal-content {
+        background: var(--surface, #1e1e1e);
+        border: 1px solid var(--border, #3a3a3c);
+        border-radius: var(--radius, 16px);
+        padding: 30px;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+    }
+    #webLockModal h2 {
+        color: var(--accent2);
+        margin-bottom: 10px;
+    }
+    #webLockModal p {
+        color: var(--text);
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+    #webLockModal button {
+        width: 100%;
+        margin: 6px 0;
+        justify-content: center;
+        padding: 10px;
+        border-radius: 24px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    #webLockModal .btn-store {
+        background: var(--accent2);
+        border: none;
+        color: #000;
+    }
+    #webLockModal .btn-close {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text);
+    }
+</style>
+
+<div id="webLockModal">
+    <div class="modal-content">
+        <h2>🔒 Application verrouillée</h2>
+        <p>Cette application est disponible uniquement sur le <strong>Microsoft Store</strong>. Veuillez la télécharger et l'acheter pour utiliser toutes les fonctionnalités.</p>
+        <button class="btn-store" id="webLockStoreBtn">📥 Aller au Microsoft Store</button>
+        <button class="btn-close" id="webLockCloseBtn">Fermer</button>
+    </div>
+</div>
+
+<script>
+(function() {
+    // Détection : sommes-nous dans l'application installée via le Store ?
+    const isStoreApp = !!(window.Windows && Windows.Services.Store);
+
+    // Si c'est le Store, on ne fait rien (laisse le comportement normal)
+    if (isStoreApp) return;
+
+    // --- Verrouillage du site web ---
+
+    const lockModal = document.getElementById('webLockModal');
+    const storeBtn = document.getElementById('webLockStoreBtn');
+    const closeBtn = document.getElementById('webLockCloseBtn');
+
+    // Fonction pour ouvrir le modal
+    function openLockModal() {
+        lockModal.classList.add('active');
+    }
+
+    // Bouton vers le Store
+    storeBtn.addEventListener('click', function() {
+        window.location.href = 'https://apps.microsoft.com/detail/9P69NCW3MFJ6';
+    });
+
+    // Fermer le modal (pour permettre à l'utilisateur de lire le message)
+    closeBtn.addEventListener('click', function() {
+        lockModal.classList.remove('active');
+    });
+
+    // Intercepter tous les clics sur la page pour afficher le modal
+    document.addEventListener('click', function(e) {
+        // Ne pas intercepter les clics sur le modal lui-même
+        if (lockModal.contains(e.target)) return;
+
+        // Empêcher toute action par défaut et afficher le modal
+        e.preventDefault();
+        e.stopPropagation();
+        openLockModal();
+    }, true); // Phase de capture pour être sûr
+
+    // Bloquer les événements de dessin sur le canvas
+    const canvas = document.getElementById('mainCanvas');
+    if (canvas) {
+        ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'].forEach(evt => {
+            canvas.addEventListener(evt, function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openLockModal();
+            }, true);
+        });
+    }
+
+    // Bloquer les touches du clavier (Ctrl+Z, etc.) pour éviter les contournements
+    document.addEventListener('keydown', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openLockModal();
+    }, true);
+
+    // Optionnel : on pourrait aussi désactiver les autres modales (premiumModal) pour éviter tout conflit
+    // On peut simplement les laisser, mais elles ne s'ouvriront pas car les clics sont interceptés avant.
+
+    // On s'assure que le bouton Premium existant ne fait pas de simulation
+    const premiumBtn = document.getElementById('unlockPremiumBtn');
+    if (premiumBtn) {
+        // On remplace son comportement par l'ouverture du modal de verrouillage
+        premiumBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openLockModal();
+        }, true);
+    }
+
+    // On peut aussi désactiver le modal premium existant en le cachant ou en le vidant
+    // Mais le plus simple est de laisser le verrouillage tout prendre.
+
+    console.log('🔒 Site web verrouillé – achat requis sur le Store.');
+})();
+</script>
 </body>
 </html>
