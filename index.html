@@ -996,9 +996,8 @@
                         showMessage('Purchase was not completed. Please try again.');
                     }
                 } else {
-                    // Browser simulation
-                    setPremium(true);
-                    showMessage('✅ Premium unlocked (simulation). In the real Store version, payment will be processed.');
+                    // Web browser: redirect to the Microsoft Store product page
+                    window.location.href = 'https://apps.microsoft.com/detail/9P69NCW3MFJ6';
                 }
                 premiumModal.classList.remove('active');
             } catch (error) {
